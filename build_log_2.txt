@@ -1,0 +1,17 @@
+Running Gradle task 'assembleDebug'...                          
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:processDebugGoogleServices'.
+> No matching client found for package name 'com.example.bellevueopoly' in C:\Users\rober\bellevueopoly-v2\android\app\google-services.json
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 2m 11s
+Running Gradle task 'assembleDebug'...                            132.4s
+Gradle task assembleDebug failed with exit code 1

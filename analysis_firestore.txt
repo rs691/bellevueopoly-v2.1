@@ -1,0 +1,15 @@
+Analyzing bellevueopoly-v2...                                   
+
+  error - The function 'Provider' isn't defined - lib\providers\config_provider.dart:7:31 - undefined_function
+  error - The function 'FutureProvider' isn't defined - lib\providers\config_provider.dart:12:28 - undefined_function
+  error - The function 'FutureProvider' isn't defined - lib\providers\config_provider.dart:21:28 - undefined_function
+  error - Undefined name 'FutureProvider' - lib\providers\config_provider.dart:27:30 - undefined_identifier
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\qr_scanner_overlay.dart:76:49 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\registration_screen.dart:100:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\registration_screen.dart:104:28 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\services\location_service.dart:36:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:22:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:27:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:30:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:34:3 - avoid_print
+

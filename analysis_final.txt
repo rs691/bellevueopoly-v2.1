@@ -1,0 +1,13 @@
+Analyzing bellevueopoly-v2...                                   
+
+  error - The getter 'secretCode' isn't defined for the type 'Business' - lib\screens\play_session_screen.dart:55:48 - undefined_getter
+  error - The getter 'checkInPoints' isn't defined for the type 'Business' - lib\screens\play_session_screen.dart:56:48 - undefined_getter
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\screens\qr_scanner_overlay.dart:76:49 - deprecated_member_use
+   info - Don't use 'BuildContext's across async gaps - lib\screens\registration_screen.dart:100:28 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - lib\screens\registration_screen.dart:104:28 - use_build_context_synchronously
+   info - Don't invoke 'print' in production code - lib\services\location_service.dart:36:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:22:3 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:27:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:30:7 - avoid_print
+   info - Don't invoke 'print' in production code - scripts\upload_businesses.dart:34:3 - avoid_print
+

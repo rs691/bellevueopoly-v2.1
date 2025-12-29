@@ -1,0 +1,399 @@
+{
+  "business_details": [
+    {
+      "id": "edward-jones",
+      "name": "Edward Jones",
+      "category": "Finance",
+      "address": "1103 Galvin Rd S Suite C, Bellevue, NE 68005",
+      "latitude": 41.136,
+      "longitude": -95.925,
+      "pitch": "Making sense of investing.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "lamar-outdoor",
+      "name": "Lamar Outdoor Advertising",
+      "category": "Advertising",
+      "address": "1036 Bruin Blvd, Bellevue, NE 68005",
+      "latitude": 41.138,
+      "longitude": -95.922,
+      "pitch": "Helping businesses stand out.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1542204165-65bf26472b9b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "iheart-media",
+      "name": "iHeartMedia",
+      "category": "Media",
+      "address": "5010 Underwood Ave, Omaha, NE 68132",
+      "latitude": 41.263,
+      "longitude": -95.990,
+      "pitch": "The #1 Audio Company in the United States.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1598550476439-cce879f94183?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "cs-services",
+      "name": "CS Services Heating and Cooling LLC",
+      "category": "Services",
+      "address": "706 Fort Crook Rd N, Bellevue, NE 68005",
+      "latitude": 41.145,
+      "longitude": -95.918,
+      "pitch": "Keep your home comfortable year-round.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1581094794329-cd232ef3473b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "west-gate-bank",
+      "name": "West Gate Bank",
+      "category": "Finance",
+      "address": "1004 Cornhusker Rd, Bellevue, NE 68123",
+      "latitude": 41.118,
+      "longitude": -95.932,
+      "pitch": "Locally owned, community focused.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1601597111158-2fceff292cd4?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "athena-arms",
+      "name": "Athena Arms",
+      "category": "Retail",
+      "address": "3403 Samson Way, Bellevue, NE 68123",
+      "latitude": 41.115,
+      "longitude": -95.935,
+      "pitch": "Premier firearms and training facility.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1584039130095-d28f0927e1f4?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "erwins-jewelers",
+      "name": "Erwin's Jewelers Co.",
+      "category": "Retail",
+      "address": "223 W Mission Ave, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.915,
+      "pitch": "Exquisite jewelry for special moments.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "chick-fil-a",
+      "name": "Chick-fil-A",
+      "category": "Restaurant",
+      "address": "2016 Cornhusker Rd, Bellevue, NE 68123",
+      "latitude": 41.120,
+      "longitude": -95.930,
+      "pitch": "Home of the Original Chicken Sandwich.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=800&q=80",
+      "promotion": {
+        "title": "Free Sandwich",
+        "description": "Free sandwich with app download",
+        "code": "CFAFREE"
+      }
+    },
+    {
+      "id": "dip-cravers",
+      "name": "Dip Cravers (Dip N Sip)",
+      "category": "Restaurant",
+      "address": "2217 Franklin St, Bellevue, NE 68005",
+      "latitude": 41.142,
+      "longitude": -95.928,
+      "pitch": "Delicious dips and sips.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1541592106381-b31e9674c96b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "holland-basham",
+      "name": "Holland Basham Architects",
+      "category": "Professional Services",
+      "address": "119 S 49th Ave, Omaha, NE 68132",
+      "latitude": 41.258,
+      "longitude": -95.985,
+      "pitch": "Designing the future of our community.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "lighthouse-cafe",
+      "name": "The Light House Cafe",
+      "category": "Restaurant",
+      "address": "119 W Mission Ave, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.916,
+      "pitch": "Coffee, community, and connection.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "bellevue-chamber",
+      "name": "Bellevue Chamber of Commerce",
+      "category": "Organization",
+      "address": "1036 Bruin Blvd, Bellevue, NE 68005",
+      "latitude": 41.138,
+      "longitude": -95.922,
+      "pitch": "Supporting Bellevue businesses.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "twisted-thunder",
+      "name": "Twisted Thunder Fireworks",
+      "category": "Retail",
+      "address": "601 Chateau Dr, Bellevue, NE 68005",
+      "latitude": 41.148,
+      "longitude": -95.910,
+      "pitch": "Lighting up the sky!",
+      "heroImageUrl": "https://images.unsplash.com/photo-1498931299472-f7a63a5a1cfa?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "royalty-roofing",
+      "name": "Royalty Roofing & Siding",
+      "category": "Services",
+      "address": "2803 Jack Pine St, Bellevue, NE 68123",
+      "latitude": 41.112,
+      "longitude": -95.940,
+      "pitch": "Protecting your home with royalty.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1632759145351-1d592919f522?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "dleons-taco",
+      "name": "D'Leon's Taco Rico",
+      "category": "Restaurant",
+      "address": "3512 Samson Way, Bellevue, NE 68123",
+      "latitude": 41.114,
+      "longitude": -95.936,
+      "pitch": "Authentic Mexican flavors.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "salon-life",
+      "name": "Live Your Best Life Salon",
+      "category": "Beauty",
+      "address": "101 W Mission Ave Suite A, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.915,
+      "pitch": "Look good, feel good.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "bellevue-little-theatre",
+      "name": "Bellevue Little Theatre",
+      "category": "Entertainment",
+      "address": "203 W Mission Ave, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.916,
+      "pitch": "Community theatre at its finest.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1503095392269-27528ca388ec?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "landings-apartments",
+      "name": "The Landings Apartments",
+      "category": "Real Estate",
+      "address": "10215 Cape Cod Lndg, Bellevue, NE 68123",
+      "latitude": 41.105,
+      "longitude": -95.930,
+      "pitch": "Luxury living in Bellevue.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "remedy-health",
+      "name": "Remedy Health (Med Spa)",
+      "category": "Health & Beauty",
+      "address": "1320 Galvin Rd S, Bellevue, NE 68005",
+      "latitude": 41.134,
+      "longitude": -95.925,
+      "pitch": "Revitalize your health and beauty.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "teammates-mentoring",
+      "name": "TeamMates Mentoring Program",
+      "category": "Organization",
+      "address": "2600 Arboretum Dr, Bellevue, NE 68005",
+      "latitude": 41.150,
+      "longitude": -95.905,
+      "pitch": "Mentoring youth to reach their full potential.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1517486808906-6ca8b3f04846?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "first-interstate-bank",
+      "name": "First Interstate Bank",
+      "category": "Finance",
+      "address": "919 Galvin Rd S, Bellevue, NE 68005",
+      "latitude": 41.137,
+      "longitude": -95.925,
+      "pitch": "Your community bank.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1556742049-0cfed4f7a07d?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "cornhusker-auto-wash",
+      "name": "Cornhusker Auto Wash",
+      "category": "Services",
+      "address": "10205 S 25th St, Bellevue, NE 68123",
+      "latitude": 41.105,
+      "longitude": -95.950,
+      "pitch": "Shine up your ride.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1520340356584-7c99a32b2604?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "ame-computers",
+      "name": "AME Computers",
+      "category": "Services",
+      "address": "101 W Mission Ave STE D, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.915,
+      "pitch": "Computer repair and sales.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1597872252165-20092c686162?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "centris-fcu",
+      "name": "Centris Federal Credit Union",
+      "category": "Finance",
+      "address": "2207 Pratt Ave, Bellevue, NE 68123",
+      "latitude": 41.125,
+      "longitude": -95.930,
+      "pitch": "Banking for everyone.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1616514197671-15d99ce7a6f8?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "west-gate-bar",
+      "name": "West Gate Bar & Grill",
+      "category": "Restaurant",
+      "address": "4001 Twin Creek Dr, Bellevue, NE 68123",
+      "latitude": 41.110,
+      "longitude": -95.945,
+      "pitch": "Great food, great times.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "red-barn-farm",
+      "name": "Red Barn Farm",
+      "category": "Agriculture",
+      "address": "1720 Ave A, Omaha, NE 68108",
+      "latitude": 41.240,
+      "longitude": -95.940,
+      "pitch": "Fresh produce and farm fun.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "wildcat-den",
+      "name": "Wildcat Den",
+      "category": "Restaurant",
+      "address": "1000 N 14th St, Blair, NE 68008",
+      "latitude": 41.550,
+      "longitude": -96.130,
+      "pitch": "Home of the Wildcats.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "blue-chip-realty",
+      "name": "Blue Chip Realty",
+      "category": "Real Estate",
+      "address": "100 N 8th St, Lincoln, NE 68508",
+      "latitude": 40.813,
+      "longitude": -96.702,
+      "pitch": "Your trusted real estate partner.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "ima-crown",
+      "name": "IMA Crown Partners",
+      "category": "Services",
+      "address": "1100 Main St, Kansas City, MO 64105",
+      "latitude": 39.100,
+      "longitude": -94.580,
+      "pitch": "Insurance and risk management.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "belleview-arms",
+      "name": "Belleview Arms",
+      "category": "Real Estate",
+      "address": "505 W Mission Ave, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.920,
+      "pitch": "Comfortable apartment living.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "belleview-poly",
+      "name": "Belleview Poly",
+      "category": "Industrial",
+      "address": "1000 Industrial Rd, Bellevue, NE 68005",
+      "latitude": 41.130,
+      "longitude": -95.910,
+      "pitch": "Quality plastic products.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "westlawn-architects",
+      "name": "Westlawn Architects",
+      "category": "Professional Services",
+      "address": "1200 Howard St, Omaha, NE 68102",
+      "latitude": 41.255,
+      "longitude": -95.935,
+      "pitch": "Designing for tomorrow.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "stellas-bar",
+      "name": "Stella's Bar & Grill",
+      "category": "Restaurant",
+      "address": "106 W Main St, Bellevue, NE 68005",
+      "latitude": 41.135,
+      "longitude": -95.915,
+      "pitch": "World famous burgers.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "chase-west-gate",
+      "name": "Chase West Gate Bank",
+      "category": "Finance",
+      "address": "2000 Cornhusker Rd, Bellevue, NE 68123",
+      "latitude": 41.120,
+      "longitude": -95.935,
+      "pitch": "Convenient banking at your service.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1620714223084-8fcacc6dfd8d?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "gwens-jewelers",
+      "name": "Gwen's Jewelers",
+      "category": "Retail",
+      "address": "120 N 10th St, Omaha, NE 68102",
+      "latitude": 41.260,
+      "longitude": -95.930,
+      "pitch": "Sparkle and shine with Gwen's.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "chicken-coop",
+      "name": "Chicken Coop Solutions",
+      "category": "Agriculture",
+      "address": "300 E Broadway, Council Bluffs, IA 51503",
+      "latitude": 41.260,
+      "longitude": -95.850,
+      "pitch": "Backyard farming made easy.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "bps-lids",
+      "name": "BPS Lids",
+      "category": "Retail",
+      "address": "200 S 24th St, Bellevue, NE 68005",
+      "latitude": 41.140,
+      "longitude": -95.950,
+      "pitch": "Top off your look with BPS Lids.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "lighthouse-coffee-2",
+      "name": "The Light House Cafe & Coffee",
+      "category": "Restaurant",
+      "address": "119 W Mission Ave, Bellevue, NE 68005",
+      "latitude": 41.139,
+      "longitude": -95.916,
+      "pitch": "More coffee, more community.",
+      "heroImageUrl": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80"
+    },
+    {
+      "id": "fun-house",
+      "name": "Fun House Bellevue",
+      "category": "Entertainment",
+      "address": "200 Fun House Ln, Bellevue, NE 68005",
+      "latitude": 41.145,
+      "longitude": -95.920,
+      "pitch": "Fun for the whole family!",
+      "heroImageUrl": "https://images.unsplash.com/photo-1576403780360-1e8460699252?auto=format&fit=crop&w=800&q=80"
+    }
+  ]
+}
