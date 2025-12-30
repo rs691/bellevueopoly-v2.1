@@ -44,7 +44,11 @@ class _BusinessListScreenState extends ConsumerState<BusinessListScreen> with Si
       ),
       body: businessListAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) {
+          debugPrint("❌ Business List Error: $err");
+          debugPrint(stack.toString());
+          return Center(child: Text('Error: $err'));
+        },
         data: (businesses) {
           // Start the animation when data is loaded
           _controller.forward();

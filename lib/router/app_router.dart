@@ -18,6 +18,7 @@ import '../screens/welcome_screen.dart';
 import '../screens/mobile_landing_screen.dart';
 import '../screens/admin_screen.dart';
 import '../screens/play_session_screen.dart';
+import '../screens/leaderboard_screen.dart';
 
 
 class AppRoutes {
@@ -35,6 +36,7 @@ class AppRoutes {
   static const String businessDetail = 'business/:id';
   static const String upload = '/upload';
   static const String admin = '/admin';
+  static const String leaderboard = '/leaderboard';
   static const String game = '/game'; 
 }
 
@@ -69,7 +71,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.register, builder: (context, state) => const RegistrationScreen()),
       GoRoute(path: AppRoutes.upload, builder: (context, state) => const ImageUploadScreen()),
       GoRoute(path: AppRoutes.admin, builder: (context, state) => const AdminScreen()),
-      GoRoute(path: AppRoutes.game, builder: (context, state) => const PlaySessionScreen()), 
+// Duplicate route removed 
 
 
 
@@ -136,7 +138,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.game,
             builder: (context, state) => const PlaySessionScreen(),
-          ),  
+          ), 
+          // 6. LEADERBOARD
+          GoRoute(
+            path: AppRoutes.leaderboard,
+            builder: (context, state) => const LeaderboardScreen(),
+          ), 
         ],
       ),
     ],

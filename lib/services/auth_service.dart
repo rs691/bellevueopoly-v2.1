@@ -64,6 +64,16 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
+
+  // Sign in anonymously (Guest/Developer Bypass)
+  Future<UserCredential?> signInAnonymously() async {
+    try {
+      return await _auth.signInAnonymously();
+    } on FirebaseAuthException catch (e) {
+      debugPrint('Auth Error: ${e.message}');
+      return null;
+    }
+  }
 }
 
 final authServiceProvider = Provider<AuthService>((ref) {

@@ -5,81 +5,115 @@ import '../providers/config_provider.dart';
 import '../theme/app_theme.dart';
 import 'qr_scanner_overlay.dart';
 
-class PlaySessionScreen extends ConsumerWidget {
+class PlaySessionScreen extends ConsumerStatefulWidget {
   final String? businessId;
 
   const PlaySessionScreen({super.key, this.businessId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (businessId == null) {
+  ConsumerState<PlaySessionScreen> createState() => _PlaySessionScreenState();
+}
+
+class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
+  // State to toggle between "Start Scanning" UI and the actual Scanner
+  bool _isScanning = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // CASE 1: Game Tab Mode (No businessId passed)
+    if (widget.businessId == null) {
+      // If actively scanning, show the Overlay INLINE (full body)
+      // This keeps the bottom nav visible (assuming PlaySessionScreen is a tab)
+      if (_isScanning) {
+        return Scaffold(
+          body: QRScannerOverlay(
+            onClose: () {
+               setState(() => _isScanning = false);
+            },
+          ),
+        );
+      }
+
+      // Default "Start Game" Dashboard
       return Scaffold(
         backgroundColor: AppTheme.primaryPurple,
         body: SafeArea(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Spacer(),
-                const Icon(
-                  Icons.qr_code_scanner, 
-                  size: 100, 
-                  color: AppTheme.accentGreen
-                ),
-                const SizedBox(height: 40),
-                Text(
-                  'MONOPOLY GO',
-                  style: AppTheme.theme.textTheme.displayMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Scan a business QR code to check in, earn points, and unlock properties!',
-                  style: AppTheme.theme.textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const Spacer(),
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.accentGreen,
-                      foregroundColor: AppTheme.primaryPurple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Spacer(),
+                          const Icon(
+                            Icons.qr_code_scanner, 
+                            size: 100, 
+                            color: AppTheme.accentGreen
+                          ),
+                          const SizedBox(height: 40),
+                          Text(
+                            'MONOPOLY GO',
+                            style: AppTheme.theme.textTheme.displayMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w900,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Scan a business QR code to check in, earn points, and unlock properties!',
+                            style: AppTheme.theme.textTheme.bodyLarge?.copyWith(
+                              color: Colors.white70,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const Spacer(),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.accentGreen,
+                                foregroundColor: AppTheme.primaryPurple,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                elevation: 8,
+                              ),
+                              onPressed: () {
+                                 setState(() => _isScanning = true);
+                              },
+                              child: const Text(
+                                'START SCANNING',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                        ],
                       ),
-                      elevation: 8,
-                    ),
-                    onPressed: () {
-                       _openScanner(context, null, null, null);
-                    },
-                    child: const Text(
-                      'START SCANNING',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 1.2,
-                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
-              ],
-            ),
+              );
+            }
           ),
         ),
       );
     }
 
-    final businessAsync = ref.watch(businessByIdProvider(businessId!));
+    // CASE 2: Property Card Mode (businessId passed)
+    // This is used when navigating to a specific business verification context
+    final businessAsync = ref.watch(businessByIdProvider(widget.businessId!));
 
     return Scaffold(
       appBar: AppBar(title: const Text('PROPERTY CARD')),
@@ -107,7 +141,7 @@ class PlaySessionScreen extends ConsumerWidget {
                 icon: const Icon(Icons.qr_code_scanner),
                 label: const Text('CHECK IN TO WIN'),
                 onPressed: () {
-                   _openScanner(
+                   _openModalScanner(
                      context, 
                      business!.id, 
                      business.secretCode ?? 'SECRET', 
@@ -124,15 +158,23 @@ class PlaySessionScreen extends ConsumerWidget {
     );
   }
 
-  void _openScanner(BuildContext context, String? businessId, String? secret, int? points) {
+  // Helper for Modal Mode (used in Property Card context)
+  void _openModalScanner(BuildContext context, String? businessId, String? secret, int? points) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => QRScannerOverlay(
-        businessId: businessId,
-        correctSecret: secret,
-        pointsToAward: points,
+      builder: (context) => SizedBox(
+         height: MediaQuery.of(context).size.height * 0.85, // Give it distinct modal feel
+         child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: QRScannerOverlay(
+              businessId: businessId,
+              correctSecret: secret,
+              pointsToAward: points,
+              // No onClose logic needed, default pop works for modal
+            ),
+         ),
       ),
     );
   }

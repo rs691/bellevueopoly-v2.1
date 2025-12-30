@@ -41,6 +41,13 @@ class MobileLandingScreen extends StatelessWidget {
               onTap: () => context.go(AppRoutes.upload),
             ),
 
+            // 4. Leaderboard 
+            NavigationBox(
+              icon: Icons.leaderboard,
+              label: 'Leaderboard',
+              onTap: () => context.go(AppRoutes.leaderboard),
+            ),
+
             // 4. Admin Panel (Placeholder)
             NavigationBox(
               icon: Icons.emoji_events,

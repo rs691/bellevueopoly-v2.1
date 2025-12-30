@@ -9,12 +9,14 @@ class QRScannerOverlay extends StatefulWidget {
   final String? businessId;
   final String? correctSecret;
   final int? pointsToAward;
+  final VoidCallback? onClose; // Custom callback for closing (e.g. switching state)
 
   const QRScannerOverlay({
     super.key,
     this.businessId,
     this.correctSecret,
     this.pointsToAward,
+    this.onClose,
   });
 
   @override
@@ -25,10 +27,17 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
   final MobileScannerController controller = MobileScannerController();
   bool _isProcessing = false;
 
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
   Future<void> _handleScan(String scannedValue) async {
     if (_isProcessing) return;
     setState(() => _isProcessing = true);
-    controller.stop(); // Pause scanner immediately
+    // controller.stop(); // Don't strictly stop, just pause processing or UI
+    // Stopping causes black screen sometimes. We just ignore further events via _isProcessing.
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -41,6 +50,9 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       String targetBusinessId;
       int points = widget.pointsToAward ?? 100;
 
+      debugPrint('🔍 QR Detected: $scannedValue');
+      
+      // ... (existing mode selection logic) ...
       // Mode A: Direct Verification (Business ID provided)
       if (widget.businessId != null && widget.correctSecret != null) {
         if (scannedValue != widget.correctSecret) {
@@ -50,6 +62,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       } 
       // Mode B: Generic Verification (Lookup by Secret)
       else {
+        debugPrint('🔎 Looking up business by secret...');
         final querySnapshot = await db
             .collection('businesses')
             .where('secretCode', isEqualTo: scannedValue)
@@ -61,57 +74,84 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         }
 
         final businessDoc = querySnapshot.docs.first;
+        final data = businessDoc.data();
         targetBusinessId = businessDoc.id;
-        points = businessDoc.data()['checkInPoints'] ?? 100;
+        debugPrint('✅ Found business: $targetBusinessId');
+        
+        // Safe parsing for points
+        final dynamic rawPoints = data['checkInPoints'];
+        if (rawPoints is int) {
+          points = rawPoints;
+        } else if (rawPoints is String) {
+          points = int.tryParse(rawPoints) ?? 100;
+        } else {
+          points = 100;
+        }
       }
 
       final scanRef = db.collection('scans').doc('${user.uid}_$targetBusinessId');
 
-      // 2. Atomic Transaction: Check for duplicates & award points
-      await db.runTransaction((transaction) async {
-        final scanDoc = await transaction.get(scanRef);
-        if (scanDoc.exists) throw 'You have already checked in here!';
 
-        // Create the scan record
-        transaction.set(scanRef, {
-          'user_id': user.uid,
-          'business_id': targetBusinessId,
-          'timestamp': FieldValue.serverTimestamp(),
-          'points_awarded': points,
-        });
 
-        // Update user's total points
-        transaction.update(db.collection('users').doc(user.uid), {
-          'total_points': FieldValue.increment(points),
-        });
+      debugPrint('🔄 Checking for existing check-in...');
+      // Alternative: Read-then-Write (Batch) instead of Transaction to avoid Web "converted Future" bugs
+      final scanDoc = await scanRef.get();
+      if (scanDoc.exists) throw 'You have already checked in here!';
+
+      debugPrint('📝 Creating batch operation...');
+      final batch = db.batch();
+
+      // 1. Create the scan record
+      batch.set(scanRef, {
+        'user_id': user.uid,
+        'business_id': targetBusinessId,
+        'timestamp': FieldValue.serverTimestamp(),
+        'points_awarded': points,
       });
 
+      debugPrint('👤 Queuing user stats update...');
+      // 2. Update user's total points and visit count
+      // Using update() implies the user doc matches user.uid which should exist.
+      // If user doc logic is fragile, we could use set(..., SetOptions(merge: true))
+      batch.update(db.collection('users').doc(user.uid), {
+        'total_points': FieldValue.increment(points),
+        'totalVisits': FieldValue.increment(1),
+      });
 
+      debugPrint('🚀 Committing batch...');
+      await batch.commit();
+      debugPrint('✅ Batch committed successfully.');
 
-      // Log Analytics Event for In-App Messaging Trigger
+      // Log Analytics
       final String businessName = widget.businessId != null 
           ? 'Business (${widget.businessId})' 
           : 'Business ($targetBusinessId)'; 
-          
-      // Ideally we would fetch the name properly if we did a lookup, 
-      // but for now ID is sufficient or we can pass name if we had it.
-      // If we did a lookup (Mode B), we have 'businessDoc'. Let's verify if we need to fetch name.
-      
-      // FIX: In Mode B we have businessDoc. In Mode A we don't fetch the doc, just check secret.
-      // To be clean, let's just log the ID for now or fetch name if critical.
-      // User just wants the trigger.
-      
-      await AnalyticsService().logCheckIn(
-        businessId: targetBusinessId,
-        businessName: businessName,
-        points: points,
-      );
+
+      try {
+        debugPrint('📊 Logging Analytics...');
+        await AnalyticsService().logCheckIn(
+          businessId: targetBusinessId,
+          businessName: businessName,
+          points: points,
+        );
+        debugPrint('✅ Analytics Logged.');
+      } catch (analyticsError) {
+        debugPrint('⚠️ Analytics Failed (Non-fatal): $analyticsError');
+      }
 
       if (mounted) _showSuccessUI(points);
-    } catch (e) {
-      if (mounted) _showErrorUI(e.toString());
+    } catch (e, stack) {
+      debugPrint('❌ Scan Error: $e\n$stack'); // Logic to print detailed error
+      // Check if it's that specific "converted Future" error
+      if (e.toString().contains('converted Future')) {
+         if (mounted) _showErrorUI('Network/Database Error. Please try again.');
+      } else {
+         if (mounted) _showErrorUI('Error: ${e.toString()}');
+      }
     } finally {
-      if (mounted) setState(() => _isProcessing = false);
+      // If we didn't succeed (error was thrown), we might want to resume scanning
+      // logic is handled in _showErrorUI for resume.
+      // If success, _showSuccessUI handles navigation/reset.
     }
   }
 
@@ -140,8 +180,8 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         actions: [
           TextButton(
             onPressed: () {
-               Navigator.of(context).pop(); // Close Dialog
-               Navigator.of(context).pop(); // Close Sheet
+               Navigator.of(ctx).pop(); // Close Dialog using its own context
+               _closeScanner();
             }, 
             child: const Text('BACK TO BOARD', style: TextStyle(color: Colors.white))
           )
@@ -154,42 +194,128 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(message),
         backgroundColor: Colors.redAccent,
+        duration: const Duration(seconds: 2),
     ));
-    // Resume scanner after a short delay so user can try again
+    
     Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) controller.start();
+        if (mounted) {
+           setState(() => _isProcessing = false);
+        }
     });
+  }
+
+  void _closeScanner() {
+    if (widget.onClose != null) {
+      widget.onClose!();
+    } else {
+      // Default behavior if no callback (e.g. used in modal)
+      Navigator.of(context).pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
-      decoration: const BoxDecoration(
-        color: AppTheme.navBarBackground,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 20),
-          const Text('ALIGN QR CODE', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-          const SizedBox(height: 20),
-          Expanded(
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: MobileScanner(
-                  controller: controller,
-                  onDetect: (capture) {
-                    if (capture.barcodes.isEmpty) return;
-                    final barcode = capture.barcodes.first;
-                    if (barcode.rawValue != null) _handleScan(barcode.rawValue!);
-                  },
-                ),
+    // Determine screen size for center cutout
+    final scanWindowSize = 280.0;
+
+    return Stack(
+      children: [
+        // 1. Camera View
+        MobileScanner(
+          controller: controller,
+          onDetect: (capture) {
+            if (capture.barcodes.isEmpty) return;
+            final barcode = capture.barcodes.first;
+            if (barcode.rawValue != null) _handleScan(barcode.rawValue!);
+          },
+        ),
+
+        // 2. Dark Overlay with Cutout
+        ColorFiltered(
+          colorFilter: ColorFilter.mode(
+            Colors.black.withOpacity(0.5), 
+            BlendMode.srcOut // Key: Cuts out the destination (the Container below)
+          ),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+               Container(
+                 decoration: const BoxDecoration(
+                   color: Colors.black,
+                   backgroundBlendMode: BlendMode.dstOut,
+                 ),
+               ),
+               Center(
+                 child: Container(
+                   width: scanWindowSize,
+                   height: scanWindowSize,
+                   decoration: BoxDecoration(
+                     color: Colors.white,
+                     borderRadius: BorderRadius.circular(20),
+                   ),
+                 ),
+               ),
+            ],
+          ),
+        ),
+
+        // 3. Visual Border & Decor
+        Center(
+          child: Container(
+            width: scanWindowSize,
+            height: scanWindowSize,
+            decoration: BoxDecoration(
+              border: Border.all(color: AppTheme.accentGreen, width: 3),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.qr_code_scanner, 
+                color: Colors.white24, 
+                size: 100
+              )
             ),
           ),
-          const SizedBox(height: 40),
-        ],
-      ),
+        ),
+
+        // 4. Instructional Text
+        Positioned(
+          top: MediaQuery.of(context).size.height * 0.15,
+          left: 0,
+          right: 0,
+          child: const Column(
+            children: [
+              Text(
+                'SCAN TO CHECK-IN',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  shadows: [Shadow(color: Colors.black, blurRadius: 4)]
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Align the QR code within the frame',
+                style: TextStyle(color: Colors.white70, shadows: [Shadow(color: Colors.black, blurRadius: 4)]),
+              ),
+            ],
+          ),
+        ),
+
+        // 5. Close Button
+        Positioned(
+          top: 40,
+          right: 20,
+          child: IconButton(
+            onPressed: _closeScanner,
+            icon: const CircleAvatar(
+              backgroundColor: Colors.black45,
+              child: Icon(Icons.close, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class Player extends Equatable {
@@ -46,12 +47,16 @@ class Player extends Equatable {
 
   factory Player.fromJson(Map<String, dynamic> json) {
     return Player(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      balance: json['balance'] as int,
-      ownedPropertyIds: List<String>.from(json['ownedPropertyIds'] as List),
-      totalVisits: json['totalVisits'] as int,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      id: json['id'] as String? ?? 'unknown',
+      name: json['name'] as String? ?? 'Unknown Player',
+      balance: json['balance'] is int ? json['balance'] : 0,
+      ownedPropertyIds: json['ownedPropertyIds'] is List
+          ? List<String>.from(json['ownedPropertyIds'])
+          : [],
+      totalVisits: json['totalVisits'] is int ? json['totalVisits'] : 0,
+      createdAt: json['createdAt'] is String 
+          ? DateTime.tryParse(json['createdAt']) ?? DateTime.now() 
+          : (json['createdAt'] is Timestamp ? (json['createdAt'] as Timestamp).toDate() : DateTime.now()),
     );
   }
 

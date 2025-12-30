@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/user_data_provider.dart';
 import '../widgets/gradient_background.dart';
 import '../theme/app_theme.dart';
+import '../router/app_router.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -87,6 +88,16 @@ class ProfileScreen extends ConsumerWidget {
                       label: const Text('Upload Business Data (Temporary)'),
                       style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[700]),
                     ),
+                    const SizedBox(height: 12),
+                    // Admin Console Button
+                    OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.admin),
+                      icon: const Icon(Icons.admin_panel_settings, color: Colors.white70),
+                      label: const Text('Admin Console', style: TextStyle(color: Colors.white70)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white24),
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -99,13 +110,17 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildHeader(BuildContext context, Map<String, dynamic> user) {
+    final String username = (user['username'] is String) ? user['username'] : 'User';
+    final String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
+    final String email = (user['email'] is String) ? user['email'] : '';
+
     return Column(
       children: [
         CircleAvatar(
           radius: 50,
           backgroundColor: AppTheme.accentGreen,
           child: Text(
-            user.containsKey('username') ? user['username'][0].toUpperCase() : 'U',
+            initial,
             style: const TextStyle(
               fontSize: 48,
               color: Colors.white,
@@ -115,11 +130,11 @@ class ProfileScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 12),
         Text(
-          user.containsKey('username') ? user['username'] : 'User',
+          username,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white),
         ),
         Text(
-          user.containsKey('email') ? user['email'] : '',
+          email,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Colors.white70),
         ),
       ],
@@ -127,9 +142,9 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsGrid(Map<String, dynamic> user) {
-    final propertiesOwned = user.containsKey('propertiesOwned') ? user['propertiesOwned'] as List : [];
-    final trophies = user.containsKey('trophies') ? user['trophies'] as List : [];
-    final totalVisits = user.containsKey('totalVisits') ? user['totalVisits'] : 0;
+    final propertiesOwned = (user['propertiesOwned'] is List) ? user['propertiesOwned'] as List : [];
+    final trophies = (user['trophies'] is List) ? user['trophies'] as List : [];
+    final totalVisits = user['totalVisits'] ?? 0;
 
     return GridView.count(
       crossAxisCount: 3,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart'; // For rootBundle
 import '../models/business_model.dart';
+import '../models/player.dart';
 
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -92,10 +93,47 @@ class FirestoreService {
   // Used by the App to get businesses from Firestore instead of local JSON
   Stream<List<Business>> getBusinessesStream() {
     return _db.collection('businesses').snapshots().map((snapshot) {
+      debugPrint("📢 Firestore Business Stream Update: ${snapshot.docs.length} documents found.");
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id; // Ensure ID matches doc ID
-        return Business.fromJson(data);
+        try {
+          return Business.fromJson(data);
+        } catch (e) {
+          debugPrint("❌ Error parsing business ${doc.id}: $e");
+          rethrow;
+        }
+      }).toList();
+    });
+  }
+
+  // Get Top Players for Leaderboard
+  Stream<List<Player>> getTopPlayersStream({int limit = 20}) {
+    return _db.collection('users')
+        .orderBy('totalVisits', descending: true)
+        .limit(limit)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        // Handle potential parsing errors safely
+        try {
+          // If 'id' is missing in data, we added it. But Player.fromJson might expect other required fields.
+          // We need to ensure data has what Player needs, or construct it manually.
+          return Player.fromJson(data);
+        } catch (e) {
+          debugPrint("Error parsing player ${doc.id}: $e");
+          // Return a placeholder so the stream doesn't crash
+          return Player(
+            id: doc.id, 
+            name: data['username'] ?? 'Unknown', 
+            balance: 0, 
+            ownedPropertyIds: [], 
+            totalVisits: (data['totalVisits'] as int?) ?? 0, 
+            createdAt: DateTime.now()
+          );
+        }
       }).toList();
     });
   }

@@ -147,6 +147,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (mounted) setState(() => _isGoogleLoading = false);
   }
 
+  Future<void> _signInAnonymously() async {
+    setState(() => _isLoading = true);
+
+    try {
+      // Use the newly added method in AuthService (or direct auth for now if not available via provider here)
+      // Since we are inside a widget, we can use FirebaseAuth directly or Ref if we convert to ConsumerWidget fully
+      // But let's stick to the pattern used in _signInWithGoogle which uses FirebaseAuth.instance directly
+      // EXCEPT I just added it to AuthService, so let's try to use that if possible, OR just duplicate the logic
+      // to match the existing style of this file which overrides the service pattern a bit.
+      // To be safe and consistent with _signInWithGoogle in this file:
+      final userCredential = await FirebaseAuth.instance.signInAnonymously();
+      final user = userCredential.user;
+
+      if (user != null && userCredential.additionalUserInfo?.isNewUser == true) {
+        await _firestoreService.addUser(
+          user: user,
+          username: 'Guest Player', // Default name for anonymous
+        );
+      }
+
+      if (mounted) context.go('/');
+    } on FirebaseAuthException catch (e) {
+      _showError(e.message ?? 'Bypass failed.');
+    } catch (e) {
+      _showError('An unexpected error occurred during bypass.');
+    }
+
+    if (mounted) setState(() => _isLoading = false);
+  }
+
   // Helper to reduce code duplication for showing errors
   void _showError(String message) {
     if (mounted) {
@@ -268,7 +298,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                               _isLoading || _isGoogleLoading
                                               ? null
                                               : _signInWithGoogle,
+
                                         ),
+                                ),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 50,
+                                  child: TextButton(
+                                    onPressed:
+                                        _isLoading || _isGoogleLoading
+                                            ? null
+                                            : _signInAnonymously,
+                                    child: const Text(
+                                      'Developer Bypass (Guest)',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
