@@ -19,6 +19,7 @@ import '../screens/mobile_landing_screen.dart';
 import '../screens/admin_screen.dart';
 import '../screens/play_session_screen.dart';
 import '../screens/leaderboard_screen.dart';
+import "../screens/casual_games_lobby_screen.dart";
 
 
 class AppRoutes {
@@ -37,7 +38,8 @@ class AppRoutes {
   static const String upload = '/upload';
   static const String admin = '/admin';
   static const String leaderboard = '/leaderboard';
-  static const String game = '/game'; 
+  static const String game = '/game';
+  static const String casualGame = '/CasualGamesLobbyScreen'; 
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -71,9 +73,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.register, builder: (context, state) => const RegistrationScreen()),
       GoRoute(path: AppRoutes.upload, builder: (context, state) => const ImageUploadScreen()),
       GoRoute(path: AppRoutes.admin, builder: (context, state) => const AdminScreen()),
+      GoRoute(path: AppRoutes.leaderboard, builder: (context, state) => const LeaderboardScreen()),
+      GoRoute(path: AppRoutes.casualGame, builder: (context, state) => const CasualGamesLobbyScreen()),
 // Duplicate route removed 
-
-
 
 
       // SHELL ROUTE (Persistent Bottom Nav)
@@ -143,7 +145,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.leaderboard,
             builder: (context, state) => const LeaderboardScreen(),
-          ), 
+          ),
+          GoRoute(path:   AppRoutes.casualGame,
+            builder: (context, state) => const PlaySessionScreen(),
+          ),
+          GoRoute(path:   AppRoutes.casualGame,
+            builder: (context, state) => const CasualGamesLobbyScreen(),
+          ),
         ],
       ),
     ],

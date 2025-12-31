@@ -48,6 +48,11 @@ dependencies:
   url_launcher: ^6.1.12
   google_maps_flutter_web: ^0.5.14
   image_picker: ^1.2.1
+# game services
+  games_services: ^5.0.0
+  audioplayers: ^6.5.1
+  flutter_launcher_icons: ^0.14.4
+
 
 
   # For data models (immutable classes, JSON serialization)

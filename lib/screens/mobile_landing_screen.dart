@@ -67,6 +67,12 @@ class MobileLandingScreen extends StatelessWidget {
               label: 'Game',
               onTap: () => context.go(AppRoutes.game),
             ),
+                 // 6. Game Tab
+            NavigationBox(
+              icon: Icons.games,
+              label: 'Casual Game',
+              onTap: () => context.go(AppRoutes.casualGame),
+            ),
           ],
         ),
       ),
