@@ -27,6 +27,7 @@ class _MonopolyBoardScreenState extends ConsumerState<MonopolyBoardScreen> {
 
   late Set<String> visitedBusinessIds;
   late int totalPoints;
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -86,7 +87,15 @@ class _MonopolyBoardScreenState extends ConsumerState<MonopolyBoardScreen> {
       ),
       body: businessAsync.when(
         data: (businesses) {
-          ref.read(gameStateProvider.notifier).initializeProperties(businesses);
+          // Initialize game state on first load only
+          if (!_isInitialized) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ref
+                  .read(gameStateProvider.notifier)
+                  .initializeProperties(businesses);
+              _isInitialized = true;
+            });
+          }
           return _buildBoardGrid(context, businesses, gameState);
         },
         loading: () => const Center(child: CircularProgressIndicator()),
