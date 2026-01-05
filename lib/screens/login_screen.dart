@@ -78,11 +78,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _email,
         password: _password,
       );
-      if (mounted) context.go('/');
+
+      if (userCredential.user != null) {
+        // Check if email is verified
+        if (!userCredential.user!.emailVerified) {
+          if (mounted) {
+            _showError('Please verify your email before logging in.');
+            // Optionally redirect to verification screen
+            await Future.delayed(const Duration(milliseconds: 500));
+            if (mounted) {
+              context.go('/email-verification', extra: _email);
+            }
+          }
+        } else {
+          if (mounted) context.go('/');
+        }
+      }
     } on FirebaseAuthException catch (e) {
       _showError(e.message ?? 'Login failed.');
     } catch (e) {
@@ -250,6 +265,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ? 'Password must be at least 6 characters long.'
                                       : null,
                                   onSaved: (value) => _password = value ?? '',
+                                ),
+                                const SizedBox(height: 12),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: GestureDetector(
+                                    onTap: () => context.go('/password-reset'),
+                                    child: const Text(
+                                      'Forgot password?',
+                                      style: TextStyle(
+                                        color: Colors.purple,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  ),
                                 ),
                                 const SizedBox(height: 32),
                                 SizedBox(

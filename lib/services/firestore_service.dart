@@ -23,6 +23,7 @@ class FirestoreService {
         'email': user.email,
         'createdAt': FieldValue.serverTimestamp(),
         'totalVisits': 0,
+        'total_points': 0,
         'propertiesOwned': [],
         'trophies': [],
       });
@@ -110,7 +111,7 @@ class FirestoreService {
   // Get Top Players for Leaderboard
   Stream<List<Player>> getTopPlayersStream({int limit = 20}) {
     return _db.collection('users')
-        .orderBy('totalVisits', descending: true)
+        .orderBy('total_points', descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) {
@@ -130,7 +131,8 @@ class FirestoreService {
             name: data['username'] ?? 'Unknown', 
             balance: 0, 
             ownedPropertyIds: [], 
-            totalVisits: (data['totalVisits'] as int?) ?? 0, 
+            totalVisits: (data['totalVisits'] as int?) ?? 0,
+            totalPoints: (data['total_points'] as int?) ?? 0,
             createdAt: DateTime.now()
           );
         }

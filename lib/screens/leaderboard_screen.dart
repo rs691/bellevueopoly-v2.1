@@ -51,11 +51,19 @@ class LeaderboardScreen extends ConsumerWidget {
                     ),
                   ),
                   title: Text(player.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  subtitle: Text('${player.totalVisits} visits'),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('${player.totalVisits}', style: Theme.of(context).textTheme.titleLarge),
-                      const Text('Visits', style: TextStyle(fontSize: 10)),
+                      Text(
+                        '${player.totalPoints}',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const Text('Points', style: TextStyle(fontSize: 10)),
                     ],
                   ),
                 ),

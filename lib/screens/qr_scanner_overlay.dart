@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:io' show Platform;
 import '../theme/app_theme.dart';
 import '../services/analytics_service.dart';
 
@@ -101,12 +104,88 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       debugPrint('📝 Creating batch operation...');
       final batch = db.batch();
 
-      // 1. Create the scan record
+      // Get device information (with safe fallbacks for web)
+      String deviceInfo = 'Unknown Device';
+      String deviceId = 'unknown';
+      String platform = 'unknown';
+      
+      try {
+        // Web doesn't support Platform APIs
+        if (kIsWeb) {
+          deviceInfo = 'Web Browser';
+          deviceId = 'web_browser';
+          platform = 'web';
+        } else {
+          platform = Platform.operatingSystem;
+          final deviceInfoPlugin = DeviceInfoPlugin();
+          
+          if (Platform.isAndroid) {
+            try {
+              final androidInfo = await deviceInfoPlugin.androidInfo;
+              deviceInfo = '${androidInfo.manufacturer} ${androidInfo.model}';
+              deviceId = androidInfo.id;
+            } catch (e) {
+              debugPrint('⚠️ Android info failed: $e');
+              deviceInfo = 'Android Device';
+            }
+          } else if (Platform.isIOS) {
+            try {
+              final iosInfo = await deviceInfoPlugin.iosInfo;
+              deviceInfo = '${iosInfo.name} ${iosInfo.model}';
+              deviceId = iosInfo.identifierForVendor ?? 'unknown';
+            } catch (e) {
+              debugPrint('⚠️ iOS info failed: $e');
+              deviceInfo = 'iOS Device';
+            }
+          } else if (Platform.isWindows) {
+            try {
+              final windowsInfo = await deviceInfoPlugin.windowsInfo;
+              deviceInfo = windowsInfo.computerName;
+              deviceId = windowsInfo.deviceId;
+            } catch (e) {
+              debugPrint('⚠️ Windows info failed: $e');
+              deviceInfo = 'Windows Device';
+            }
+          } else if (Platform.isLinux) {
+            try {
+              final linuxInfo = await deviceInfoPlugin.linuxInfo;
+              deviceInfo = linuxInfo.name;
+              deviceId = linuxInfo.machineId ?? 'unknown';
+            } catch (e) {
+              debugPrint('⚠️ Linux info failed: $e');
+              deviceInfo = 'Linux Device';
+            }
+          } else if (Platform.isMacOS) {
+            try {
+              final macInfo = await deviceInfoPlugin.macOsInfo;
+              deviceInfo = macInfo.model;
+              deviceId = macInfo.systemGUID ?? 'unknown';
+            } catch (e) {
+              debugPrint('⚠️ macOS info failed: $e');
+              deviceInfo = 'Mac Device';
+            }
+          }
+        }
+      } catch (e) {
+        debugPrint('⚠️ Could not get device info: $e');
+        deviceInfo = 'Unknown Device';
+        deviceId = 'unknown';
+      }
+
+      debugPrint('📱 Device: $deviceInfo ($deviceId) - $platform');
+
+      // 1. Create the scan record with enhanced metadata
       batch.set(scanRef, {
         'user_id': user.uid,
+        'scanned_by': user.email ?? user.displayName ?? 'Unknown User',
+        'scanned_by_username': user.displayName ?? user.email?.split('@')[0] ?? 'Unknown',
         'business_id': targetBusinessId,
-        'timestamp': FieldValue.serverTimestamp(),
+        'scanned_at': FieldValue.serverTimestamp(),
+        'timestamp': FieldValue.serverTimestamp(), // Keep for backward compatibility
         'points_awarded': points,
+        'device_info': deviceInfo,
+        'device_id': deviceId,
+        'platform': platform,
       });
 
       debugPrint('👤 Queuing user stats update...');

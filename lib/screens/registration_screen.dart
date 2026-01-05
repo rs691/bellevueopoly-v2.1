@@ -87,23 +87,38 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
       );
 
       if (userCredential.user != null) {
+        // Add user to Firestore
         await ref.read(firestoreServiceProvider).addUser(
           user: userCredential.user!,
           username: _username,
         );
 
+        // Send email verification
+        await userCredential.user!.sendEmailVerification();
+
         if (mounted) {
-          context.go('/');
+          // Navigate to email verification screen
+          context.go('/email-verification', extra: _email);
         }
       }
     } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message ?? 'Registration failed.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message ?? 'Registration failed.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An unexpected error occurred.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An unexpected error occurred.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
 
     if (mounted) {

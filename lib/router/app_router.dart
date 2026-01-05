@@ -22,6 +22,8 @@ import '../screens/leaderboard_screen.dart';
 import "../screens/casual_games_lobby_screen.dart";
 import '../screens/rewards_nearby_screen.dart';
 import '../screens/monopoly_board_screen.dart';
+import '../screens/password_reset_screen.dart';
+import '../screens/email_verification_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -29,6 +31,8 @@ class AppRoutes {
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String register = '/register';
+  static const String passwordReset = '/password-reset';
+  static const String emailVerification = '/email-verification';
 
   // Authenticated Shell Routes
   static const String home = '/'; // <--- THIS must be '/'
@@ -63,6 +67,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     AppRoutes.welcome,
     AppRoutes.landing,
     AppRoutes.splash,
+    AppRoutes.passwordReset,
+    AppRoutes.emailVerification,
   };
 
   return GoRouter(
@@ -88,6 +94,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegistrationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.passwordReset,
+        builder: (context, state) => const PasswordResetScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.emailVerification,
+        builder: (context, state) {
+          final email = state.extra as String?;
+          return EmailVerificationScreen(
+            email: email ?? 'your-email@example.com',
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.upload,

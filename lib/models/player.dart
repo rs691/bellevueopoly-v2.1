@@ -7,6 +7,7 @@ class Player extends Equatable {
   final int balance;
   final List<String> ownedPropertyIds;
   final int totalVisits;
+  final int totalPoints;  // Total points from all scans
   final DateTime createdAt;
 
   const Player({
@@ -15,6 +16,7 @@ class Player extends Equatable {
     required this.balance,
     required this.ownedPropertyIds,
     required this.totalVisits,
+    required this.totalPoints,
     required this.createdAt,
   });
 
@@ -24,6 +26,7 @@ class Player extends Equatable {
     int? balance,
     List<String>? ownedPropertyIds,
     int? totalVisits,
+    int? totalPoints,
     DateTime? createdAt,
   }) {
     return Player(
@@ -32,6 +35,7 @@ class Player extends Equatable {
       balance: balance ?? this.balance,
       ownedPropertyIds: ownedPropertyIds ?? this.ownedPropertyIds,
       totalVisits: totalVisits ?? this.totalVisits,
+      totalPoints: totalPoints ?? this.totalPoints,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -42,6 +46,7 @@ class Player extends Equatable {
     'balance': balance,
     'ownedPropertyIds': ownedPropertyIds,
     'totalVisits': totalVisits,
+    'total_points': totalPoints,
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -54,6 +59,7 @@ class Player extends Equatable {
           ? List<String>.from(json['ownedPropertyIds'])
           : [],
       totalVisits: json['totalVisits'] is int ? json['totalVisits'] : 0,
+      totalPoints: json['total_points'] is int ? json['total_points'] : 0,
       createdAt: json['createdAt'] is String 
           ? DateTime.tryParse(json['createdAt']) ?? DateTime.now() 
           : (json['createdAt'] is Timestamp ? (json['createdAt'] as Timestamp).toDate() : DateTime.now()),
@@ -67,6 +73,7 @@ class Player extends Equatable {
     balance,
     ownedPropertyIds,
     totalVisits,
+    totalPoints,
     createdAt,
   ];
 }
