@@ -18,9 +18,7 @@ class NavigationBox extends StatelessWidget {
       onTap: onTap,
       child: Card(
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,

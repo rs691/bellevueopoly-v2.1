@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../router/app_router.dart';
 
 class CasualGamesLobbyScreen extends StatelessWidget {
   const CasualGamesLobbyScreen({super.key});
@@ -18,6 +19,12 @@ class CasualGamesLobbyScreen extends StatelessWidget {
         crossAxisSpacing: 16,
         children: [
           _GameTile(
+            title: 'Available Rewards Nearby',
+            icon: Icons.card_giftcard,
+            color: Colors.purple,
+            onTap: () => context.push(AppRoutes.rewardsNearby),
+          ),
+          _GameTile(
             title: 'Mini Game 1',
             icon: Icons.games,
             onTap: () => context.push('/casual-games/game1'),
@@ -33,6 +40,20 @@ class CasualGamesLobbyScreen extends StatelessWidget {
             onTap: () => context.push('/casual-games/settings'),
           ),
           // Add more game tiles as needed
+          _GameTile(
+            title: 'Game board',
+            icon: Icons.dashboard,
+            onTap: () => context.push('/AppRoutes.gameBoard'),
+          ),
+          _GameTile(
+            title: 'Coming Soon',
+            icon: Icons.lock,
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('This feature is coming soon!')),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -43,11 +64,13 @@ class _GameTile extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback onTap;
+  final Color? color;
 
   const _GameTile({
     required this.title,
     required this.icon,
     required this.onTap,
+    this.color,
   });
 
   @override
@@ -59,9 +82,17 @@ class _GameTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 64),
+            Icon(
+              icon,
+              size: 64,
+              color: color ?? Theme.of(context).colorScheme.primary,
+            ),
             const SizedBox(height: 8),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              title,
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       ),

@@ -20,7 +20,8 @@ import '../screens/admin_screen.dart';
 import '../screens/play_session_screen.dart';
 import '../screens/leaderboard_screen.dart';
 import "../screens/casual_games_lobby_screen.dart";
-
+import '../screens/rewards_nearby_screen.dart';
+import '../screens/game_board_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -30,7 +31,7 @@ class AppRoutes {
   static const String register = '/register';
 
   // Authenticated Shell Routes
-  static const String home = '/';       // <--- THIS must be '/'
+  static const String home = '/'; // <--- THIS must be '/'
   static const String map = '/map';
   static const String businesses = '/businesses';
   static const String profile = '/profile';
@@ -39,7 +40,8 @@ class AppRoutes {
   static const String admin = '/admin';
   static const String leaderboard = '/leaderboard';
   static const String game = '/game';
-  static const String casualGame = '/CasualGamesLobbyScreen'; 
+  static const String casualGame = '/CasualGamesLobbyScreen';
+  static const String rewardsNearby = '/rewards-nearby';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -66,17 +68,42 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     navigatorKey: _rootNavigatorKey,
     routes: [
-      GoRoute(path: AppRoutes.splash, builder: (context, state) => const SplashScreen()),
-      GoRoute(path: AppRoutes.landing, builder: (context, state) => const LandingScreen()),
-      GoRoute(path: AppRoutes.welcome, builder: (context, state) => const WelcomeScreen()),
-      GoRoute(path: AppRoutes.login, builder: (context, state) => const LoginScreen()),
-      GoRoute(path: AppRoutes.register, builder: (context, state) => const RegistrationScreen()),
-      GoRoute(path: AppRoutes.upload, builder: (context, state) => const ImageUploadScreen()),
-      GoRoute(path: AppRoutes.admin, builder: (context, state) => const AdminScreen()),
-      GoRoute(path: AppRoutes.leaderboard, builder: (context, state) => const LeaderboardScreen()),
-      GoRoute(path: AppRoutes.casualGame, builder: (context, state) => const CasualGamesLobbyScreen()),
-// Duplicate route removed 
-
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.landing,
+        builder: (context, state) => const LandingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.welcome,
+        builder: (context, state) => const WelcomeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.login,
+        builder: (context, state) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.register,
+        builder: (context, state) => const RegistrationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.upload,
+        builder: (context, state) => const ImageUploadScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.admin,
+        builder: (context, state) => const AdminScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.leaderboard,
+        builder: (context, state) => const LeaderboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.casualGame,
+        builder: (context, state) => const CasualGamesLobbyScreen(),
+      ),
 
       // SHELL ROUTE (Persistent Bottom Nav)
       ShellRoute(
@@ -105,25 +132,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     key: state.pageKey,
                     child: BusinessDetailScreen(businessId: id),
                     barrierDismissible: true,
-                    barrierColor: Colors.black54, // Darkens the screen behind it
+                    barrierColor:
+                        Colors.black54, // Darkens the screen behind it
                     opaque: false, // Allows transparency
-                    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                      // Scale and Fade animation like a popup
-                      return FadeTransition(
-                        opacity: animation,
-                        child: ScaleTransition(
-                          scale: CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-                          child: child,
-                        ),
-                      );
-                    },
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                          // Scale and Fade animation like a popup
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeOutBack,
+                              ),
+                              child: child,
+                            ),
+                          );
+                        },
                     transitionDuration: const Duration(milliseconds: 300),
                   );
                 },
               ),
             ],
           ),
-
 
           // 3. BUSINESS LIST
           GoRoute(
@@ -140,17 +171,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.game,
             builder: (context, state) => const PlaySessionScreen(),
-          ), 
+          ),
           // 6. LEADERBOARD
           GoRoute(
             path: AppRoutes.leaderboard,
             builder: (context, state) => const LeaderboardScreen(),
           ),
-          GoRoute(path:   AppRoutes.casualGame,
+          GoRoute(
+            path: AppRoutes.casualGame,
             builder: (context, state) => const PlaySessionScreen(),
           ),
-          GoRoute(path:   AppRoutes.casualGame,
+          GoRoute(
+            path: AppRoutes.casualGame,
             builder: (context, state) => const CasualGamesLobbyScreen(),
+          ),
+          // 7. REWARDS NEARBY
+          GoRoute(
+            path: AppRoutes.rewardsNearby,
+            builder: (context, state) => const RewardsNearbyScreen(),
           ),
         ],
       ),

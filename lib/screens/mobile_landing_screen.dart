@@ -41,7 +41,7 @@ class MobileLandingScreen extends StatelessWidget {
               onTap: () => context.go(AppRoutes.upload),
             ),
 
-            // 4. Leaderboard 
+            // 4. Leaderboard
             NavigationBox(
               icon: Icons.leaderboard,
               label: 'Leaderboard',
@@ -53,7 +53,7 @@ class MobileLandingScreen extends StatelessWidget {
               icon: Icons.emoji_events,
               label: 'Admin Panel',
               onTap: () => context.go(AppRoutes.admin),
-              ),
+            ),
 
             // 5. Profile Tab
             NavigationBox(
@@ -67,7 +67,7 @@ class MobileLandingScreen extends StatelessWidget {
               label: 'Game',
               onTap: () => context.go(AppRoutes.game),
             ),
-                 // 6. Game Tab
+            // 6. Game Tab
             NavigationBox(
               icon: Icons.games,
               label: 'Casual Game',

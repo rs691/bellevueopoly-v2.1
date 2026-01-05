@@ -13,14 +13,16 @@ class AppTheme {
     brightness: Brightness.dark,
 
     // Define a modern, M3 color scheme from a seed color
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primaryPurple,
-      brightness: Brightness.dark,
-      primary: accentGreen, // Keep brand green as primary
-      secondary: accentOrange, // Keep brand orange as secondary
-    ).copyWith(
-      surface: navBarBackground, // Ensure the nav bar color is used as the surface
-    ),
+    colorScheme:
+        ColorScheme.fromSeed(
+          seedColor: primaryPurple,
+          brightness: Brightness.dark,
+          primary: accentGreen, // Keep brand green as primary
+          secondary: accentOrange, // Keep brand orange as secondary
+        ).copyWith(
+          surface:
+              navBarBackground, // Ensure the nav bar color is used as the surface
+        ),
 
     scaffoldBackgroundColor: primaryPurple,
 
@@ -48,18 +50,16 @@ class AppTheme {
         backgroundColor: accentGreen,
         foregroundColor: Colors.black,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     ),
 
     textTheme: const TextTheme(
-      headlineSmall: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+      headlineSmall: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.white,
+      ),
       titleLarge: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
       titleMedium: TextStyle(color: Colors.white70),
       bodyMedium: TextStyle(color: Colors.white70),
@@ -85,4 +85,3 @@ class AppTheme {
     ),
   );
 }
-
