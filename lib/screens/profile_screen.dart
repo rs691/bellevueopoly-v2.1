@@ -99,14 +99,6 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     const Divider(),
                     const SizedBox(height: 24),
-                    // Temporary Upload Button
-                    ElevatedButton.icon(
-                      onPressed: () => _uploadBusinessData(context),
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Upload Business Data (Temporary)'),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[700]),
-                    ),
-                    const SizedBox(height: 12),
                     // Admin Console Button
                     OutlinedButton.icon(
                       onPressed: () => context.push(AppRoutes.admin),

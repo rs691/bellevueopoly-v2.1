@@ -7,9 +7,11 @@ class CasualGamesLobbyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canPop = Navigator.of(context).canPop();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Arcade Games'),
+        leading: canPop ? const BackButton() : null,
         backgroundColor: Theme.of(context).primaryColor,
       ),
       body: GridView.count(

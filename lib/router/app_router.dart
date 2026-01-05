@@ -124,11 +124,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.leaderboard,
         builder: (context, state) => const LeaderboardScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.casualGame,
-        builder: (context, state) => const CasualGamesLobbyScreen(),
-      ),
-
       // SHELL ROUTE (Persistent Bottom Nav)
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -200,10 +195,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.leaderboard,
             builder: (context, state) => const LeaderboardScreen(),
-          ),
-          GoRoute(
-            path: AppRoutes.casualGame,
-            builder: (context, state) => const PlaySessionScreen(),
           ),
           GoRoute(
             path: AppRoutes.casualGame,

@@ -30,7 +30,8 @@ class MainScaffold extends StatelessWidget {
       return 2;
     } else if (location.startsWith('/profile')) {
       return 3;
-    } else if (location.startsWith(AppRoutes.game)) {
+    } else if (location.startsWith(AppRoutes.game) ||
+        location.startsWith(AppRoutes.casualGame)) {
       return 4;
     }
     return 0;
