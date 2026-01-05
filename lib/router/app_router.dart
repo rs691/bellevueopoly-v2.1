@@ -21,7 +21,7 @@ import '../screens/play_session_screen.dart';
 import '../screens/leaderboard_screen.dart';
 import "../screens/casual_games_lobby_screen.dart";
 import '../screens/rewards_nearby_screen.dart';
-import '../screens/game_board_screen.dart';
+import '../screens/monopoly_board_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -42,6 +42,7 @@ class AppRoutes {
   static const String game = '/game';
   static const String casualGame = '/CasualGamesLobbyScreen';
   static const String rewardsNearby = '/rewards-nearby';
+  static const String monopolyBoard = '/monopolyBoard';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -189,6 +190,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.rewardsNearby,
             builder: (context, state) => const RewardsNearbyScreen(),
+          ),
+          // 8. MONOPOLY BOARD GAME
+          GoRoute(
+            path: AppRoutes.monopolyBoard,
+            builder: (context, state) => const MonopolyBoardScreen(),
           ),
         ],
       ),

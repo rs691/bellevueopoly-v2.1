@@ -41,10 +41,13 @@ class CasualGamesLobbyScreen extends StatelessWidget {
           ),
           // Add more game tiles as needed
           _GameTile(
-            title: 'Game board',
+            title: 'Good Life Board',
             icon: Icons.dashboard,
-            onTap: () => context.push('/AppRoutes.gameBoard'),
+            color: Colors.blue,
+            onTap: () => context.push(AppRoutes.monopolyBoard),
           ),
+
+          // Add more game tiles as needed
           _GameTile(
             title: 'Coming Soon',
             icon: Icons.lock,
