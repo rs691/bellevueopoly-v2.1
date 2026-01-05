@@ -77,6 +77,24 @@ class ProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     _buildStatsGrid(user),
                     const SizedBox(height: 32),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.instructions),
+                      icon: const Icon(Icons.menu_book, color: Colors.white70),
+                      label: const Text('How to Play', style: TextStyle(color: Colors.white70)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white24),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.checkinHistory),
+                      icon: const Icon(Icons.history, color: Colors.white70),
+                      label: const Text('View Check-in History', style: TextStyle(color: Colors.white70)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.white24),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     _buildLogoutButton(context, auth),
                     const SizedBox(height: 24),
                     const Divider(),
