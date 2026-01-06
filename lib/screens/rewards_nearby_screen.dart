@@ -109,7 +109,7 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
             ),
             infoWindow: gmf.InfoWindow(
               title: business.name,
-              onTap: () => context.push('/map/business/${business.id}'),
+              onTap: () => context.push('/business/${business.id}'),
             ),
           ),
         );
@@ -295,8 +295,8 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                             ),
                           );
                         }
-                        // Navigate to detail screen
-                        context.push('/map/business/${item.business.id}');
+                        // Navigate to detail screen (modal overlay under Stop Hub)
+                        context.push('/business/${item.business.id}');
                       },
                       context: context,
                     );

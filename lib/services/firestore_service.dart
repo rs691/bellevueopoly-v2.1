@@ -18,6 +18,9 @@ class FirestoreService {
     required String username,
   }) async {
     try {
+      // Check if user is anonymous (developer bypass)
+      final isAnonymous = user.isAnonymous;
+      
       await _db.collection('users').doc(user.uid).set({
         'username': username,
         'email': user.email,
@@ -26,7 +29,13 @@ class FirestoreService {
         'total_points': 0,
         'propertiesOwned': [],
         'trophies': [],
+        'isAdmin': isAnonymous, // Anonymous users get admin access
+        'isAnonymous': isAnonymous,
       });
+      
+      if (isAnonymous) {
+        debugPrint('✅ Anonymous user created with admin privileges');
+      }
     } catch (e) {
       debugPrint('Error adding user to Firestore: $e');
       rethrow;

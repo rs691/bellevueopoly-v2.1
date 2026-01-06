@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:math' as math;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 import '../widgets/glassmorphic_card.dart';
 import '../widgets/gradient_background.dart';
@@ -26,7 +25,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String _email = '';
   String _password = '';
   bool _isLoading = false;
-  bool _isGoogleLoading = false;
 
   // Re-usable FirestoreService instance
   final FirestoreService _firestoreService = FirestoreService();
@@ -107,61 +105,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     if (mounted) setState(() => _isLoading = false);
   }
 
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isGoogleLoading = true);
-
-    try {
-      if (kIsWeb) {
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        final userCredential = await FirebaseAuth.instance.signInWithPopup(
-          googleProvider,
-        );
-        final user = userCredential.user;
-
-        if (user != null &&
-            userCredential.additionalUserInfo?.isNewUser == true) {
-          await _firestoreService.addUser(
-            user: user,
-            username:
-                user.displayName ?? user.email?.split('@')[0] ?? 'New Player',
-          );
-        }
-
-        if (mounted) context.go('/');
-      } else {
-        final GoogleSignInAccount googleUser = await GoogleSignIn.instance
-            .authenticate();
-
-        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-        final OAuthCredential credential = GoogleAuthProvider.credential(
-          idToken: googleAuth.idToken,
-        );
-
-        final userCredential = await FirebaseAuth.instance.signInWithCredential(
-          credential,
-        );
-        final user = userCredential.user;
-
-        if (user != null &&
-            userCredential.additionalUserInfo?.isNewUser == true) {
-          await _firestoreService.addUser(
-            user: user,
-            username:
-                user.displayName ?? user.email?.split('@')[0] ?? 'New Player',
-          );
-        }
-
-        if (mounted) context.go('/');
-      }
-    } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Google Sign-In failed.');
-    } catch (e) {
-      _showError('An unexpected error occurred during Google Sign-In.');
-    }
-
-    if (mounted) setState(() => _isGoogleLoading = false);
-  }
-
   Future<void> _signInAnonymously() async {
     setState(() => _isLoading = true);
 
@@ -175,11 +118,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       final userCredential = await FirebaseAuth.instance.signInAnonymously();
       final user = userCredential.user;
 
-      if (user != null && userCredential.additionalUserInfo?.isNewUser == true) {
-        await _firestoreService.addUser(
-          user: user,
-          username: 'Guest Player', // Default name for anonymous
-        );
+      if (user != null) {
+        // Always ensure anonymous users have admin privileges
+        if (userCredential.additionalUserInfo?.isNewUser == true) {
+          // Create new user document
+          await _firestoreService.addUser(
+            user: user,
+            username: 'Guest Player', // Default name for anonymous
+          );
+        } else {
+          // Update existing anonymous user to ensure admin privileges
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({
+            'isAdmin': true,
+            'isAnonymous': true,
+          }, SetOptions(merge: true)); // Merge to avoid overwriting other fields
+        }
       }
 
       if (mounted) context.go('/');
@@ -287,7 +243,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   width: double.infinity,
                                   height: 50,
                                   child: ElevatedButton(
-                                    onPressed: _isLoading || _isGoogleLoading
+                                    onPressed: _isLoading
                                         ? null
                                         : _trySubmit,
                                     child: _isLoading
@@ -298,47 +254,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                const _OrDivider(),
-                                const SizedBox(height: 20),
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 50,
-                                  child: _isGoogleLoading
-                                      ? const Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      : OutlinedButton.icon(
-                                          icon: Image.asset(
-                                            'assets/images/google_logo.png', // Make sure you have this asset
-                                            height: 24.0,
-                                          ),
-                                          label: const Text(
-                                            'Sign in with Google',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          style: OutlinedButton.styleFrom(
-                                            side: BorderSide(
-                                              color: Colors.white.withValues(alpha: 
-                                                0.5,
-                                              ),
-                                            ),
-                                          ),
-                                          onPressed:
-                                              _isLoading || _isGoogleLoading
-                                              ? null
-                                              : _signInWithGoogle,
-
-                                        ),
-                                ),
-                                const SizedBox(height: 12),
                                 SizedBox(
                                   width: double.infinity,
                                   height: 50,
                                   child: TextButton(
                                     onPressed:
-                                        _isLoading || _isGoogleLoading
+                                        _isLoading
                                             ? null
                                             : _signInAnonymously,
                                     child: const Text(
@@ -425,27 +346,5 @@ class _Particle {
     required this.offsetY,
     required this.speed,
   });
-}
-
-// Extracted the 'OR' divider into its own stateless widget for performance and readability
-class _OrDivider extends StatelessWidget {
-  const _OrDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(child: Divider()),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            'OR',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
-          ),
-        ),
-        const Expanded(child: Divider()),
-      ],
-    );
-  }
 }
 

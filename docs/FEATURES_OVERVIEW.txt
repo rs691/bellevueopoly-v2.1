@@ -1,0 +1,105 @@
+Bellevue Monopoly v2.1 - Features Overview
+
+Summary
+Bellevue Monopoly is a location-based Monopoly game for the Bellevue area. Recent updates have added comprehensive admin functionality, rules/prizes systems, and Firebase integration for image storage and user management.
+
+---
+
+Core Features by Category
+
+1) Authentication & Authorization
+- Login Screen (lib/screens/login_screen.dart): Email/password auth, create account, forgot password, anonymous testing (auto-admin), glassmorphic UI, responsive form. Route: /login
+- Registration Screen (lib/screens/registration_screen.dart): Email/password signup with validation and errors. Route: /register
+- Password Reset Screen (lib/screens/password_reset_screen.dart): Email-based reset via Firebase. Route: /password-reset
+- Email Verification Screen (lib/screens/email_verification_screen.dart): Verify email, resend verification. Route: /email-verification
+- Welcome/Landing/Splash Screens: Onboarding flow. Routes: /welcome, /landing, /splash
+
+2) Admin System (NEW)
+- Admin Screen (lib/screens/admin_screen.dart): Manage admin status, grant/revoke, admin-only actions. Route: /admin (admin only)
+- Admin Test Screen (lib/screens/admin_test_screen.dart): Show current admin status, badge, test admin functions. Route: /admin-test
+- Admin Provider (lib/providers/admin_provider.dart): Stream-based admin state.
+- Admin Service (lib/services/admin_service.dart): Grant/revoke/check admin via Firestore.
+- Admin Badge: Shown on profile for admins.
+
+3) Rules & Prizes System (NEW)
+- Rules & Prizes Screen (lib/screens/rules_and_prizes_screen.dart): 4 tabs (Quick Rules, Full Rules, Prizes, FAQs), pinned header, gradient, Material 3. Route: /rules-and-prizes. Generic via GameRules.
+- Rules Preview Sheet (lib/screens/rules_preview_sheet.dart): Bottom sheet with quick rules, buttons for full rules and Start Game. Use showRulesPreviewSheet(context, gameRules, onStartGame).
+- Game Rules Model (lib/models/game_rules.dart): GameRules, RuleSection, Prize, FAQ. Includes monopolyGameRules preset.
+- Integration: preview on game start, help menu access, lobby access.
+
+4) Image Management & Firebase Storage (NEW)
+- Storage Service (lib/services/storage_service.dart): uploadProfilePicture, uploadMultipleImages, deleteImage, web/mobile, 5MB limit, detailed errors. Bucket: roberts-web-apps.firebasestorage.app
+- Image Upload Screen (lib/screens/image_upload_screen.dart): Multi-image picker, preview, categories (general/review/checkin/event), progress, errors, delete. Route: /upload
+- Profile Picture Uploader (lib/widgets/profile_picture_uploader.dart): Display/upload/replace profile pic.
+- Profile Screen (lib/screens/profile_screen.dart): Profile info, admin badge, My Images gallery, upload/delete. Route: /profile
+- Firestore: users/{uid}/images with URL, timestamp, category, size.
+
+5) Game Modes
+- Monopoly Board Screen (lib/screens/monopoly_board_screen.dart): Main game, Bellevue properties, player tracking, QR validation, rules access. Route: /monopolyBoard
+- Casual Games Lobby (lib/screens/casual_games_lobby_screen.dart): Browse/launch casual games. Route: /CasualGamesLobbyScreen
+- Play Session Screen (lib/screens/play_session_screen.dart): Manage active session, scores, turns.
+- Instructions Screen (lib/screens/instructions_screen.dart): Tutorials/how-to. Route: /instructions
+
+6) Location & Business Features
+- Home/Map Screen (lib/screens/home_screen.dart): Map with business markers, location tracking, filters. Route: /
+- Business List Screen (lib/screens/business_list_screen.dart): Search/filter/sort businesses. Route: /businesses
+- Business Detail Screen (lib/screens/business_detail_screen.dart): Business info, property details, reviews, images, map. Route: /business/:id
+- Rewards Nearby Screen (lib/screens/rewards_nearby_screen.dart): Nearby rewards/businesses with distance. Route: /rewards-nearby
+- Boulevard Partners Screen (lib/screens/boulevard_partners_screen.dart): Featured partners and offers.
+
+7) Player Progression & Engagement
+- Leaderboard Screen (lib/screens/leaderboard_screen.dart): Rankings, stats, time filters. Route: /leaderboard
+- Achievements Screen (lib/screens/achievements_screen.dart): Badges and progress.
+- Check-in History Screen (lib/screens/checkin_history_screen.dart): Timeline of visited businesses, stats. Route: /checkin-history
+- Prizes Screen (lib/screens/prizes_screen.dart): Rewards catalog and redemption.
+
+8) User Settings & Account
+- Profile Screen (lib/screens/profile_screen.dart): See Image Management section. Route: /profile
+- Settings Screen (lib/screens/settings_screen.dart): Audio, notifications, privacy, app info, support.
+- My Account Options Screen (lib/screens/my_account_options_screen.dart): Edit profile, change password, privacy, delete account, logout.
+- FAQ Screen (lib/screens/faq_screen.dart): Searchable help.
+- Game Settings Screen (lib/screens/game_settings_screen.dart): Difficulty, variants, timers, house rules.
+
+9) QR Code & Validation
+- QR Scanner Overlay (lib/screens/qr_scanner_overlay.dart): Camera QR scanning with feedback.
+
+10) Core Infrastructure
+- Auth Service (lib/services/auth_service.dart): Login, register, reset, verify email, anonymous sign-in.
+- Firestore Service (lib/services/firestore_service.dart): Data persistence, queries, realtime updates.
+- Config Service (lib/services/config_service.dart): Load city/business configs, game rules, dynamic updates.
+- Location Service (lib/services/location_service.dart): GPS, permissions, accuracy.
+- Analytics Service (lib/services/analytics_service.dart): Event logging, user metrics.
+- Device Service (lib/services/device_service.dart): Platform/system info.
+
+State Management (Riverpod)
+Key providers: authStateProvider, authServiceProvider, userDataProvider, businessesProvider, adminProvider, playerProvider, gameStateProvider, locationProvider, audioProvider.
+
+Security & Permissions
+- Firestore rules: users read/write own data; anonymous admins for testing; admin-only collections locked; public business data readable.
+- Permissions: Camera, Location, Storage/Photos; Web uses camera/geolocation.
+- Firebase: Project roberts-web-apps; Auth email/password + anonymous; Storage roberts-web-apps.firebasestorage.app; Firestore database.
+
+Design System
+- Material 3, glassmorphism, gradients, golden accents, responsive.
+- Key widgets: GlassmorphicCard, GradientBackground, ResponsiveFormContainer, MainScaffold.
+
+Recent Improvements (This Session)
+Added: Rules & Prizes system, admin privilege system (anonymous support), Firebase Storage for images, profile image gallery, admin badge, rules preview sheet, full rules/FAQ system.
+Fixed: Removed Google Sign-In; routing type casting; import fixes; clean build.
+
+Future Opportunities
+- Multiplayer real-time, messaging, player-created rules, tournaments, seasonal events, business owner dashboard, push notifications, social sharing, AR visits, video tutorials.
+
+Testing Checklist
+- Admin system works
+- Rules preview on game start
+- Full rules tabs navigate
+- Image upload to Storage
+- Profile picture displays
+- Monopoly rules pre-configured
+- Navigation routes functional
+- Anonymous login grants admin automatically
+
+Last Updated: January 6, 2026
+Version: 2.1
+Status: Production Ready

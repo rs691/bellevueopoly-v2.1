@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../providers/user_data_provider.dart';
 import '../widgets/gradient_background.dart';
+import '../widgets/profile_picture_uploader.dart';
+import '../widgets/user_image_gallery.dart';
 import '../theme/app_theme.dart';
 import '../router/app_router.dart';
 
@@ -94,6 +96,51 @@ class ProfileScreen extends ConsumerWidget {
                         side: const BorderSide(color: Colors.white24),
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push(AppRoutes.adminTest),
+                      icon: const Icon(Icons.admin_panel_settings, color: Colors.amber),
+                      label: const Text('Admin Status Test', style: TextStyle(color: Colors.amber)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.amber),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    // My Images Section
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'My Images',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () => context.push(AppRoutes.upload),
+                          icon: const Icon(Icons.add_photo_alternate, size: 18),
+                          label: const Text('Upload'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white70,
+                            side: const BorderSide(color: Colors.white24),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Image Gallery
+                    SizedBox(
+                      height: 300,
+                      child: UserImageGallery(),
+                    ),
                     const SizedBox(height: 16),
                     _buildLogoutButton(context, auth),
                     const SizedBox(height: 24),
@@ -121,27 +168,55 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildHeader(BuildContext context, Map<String, dynamic> user) {
     final String username = (user['username'] is String) ? user['username'] : 'User';
-    final String initial = username.isNotEmpty ? username[0].toUpperCase() : 'U';
     final String email = (user['email'] is String) ? user['email'] : '';
+    final String? photoUrl = user['photoURL'] as String?;
+    final bool isAdmin = user['isAdmin'] == true;
 
     return Column(
       children: [
-        CircleAvatar(
-          radius: 50,
-          backgroundColor: AppTheme.accentGreen,
-          child: Text(
-            initial,
-            style: const TextStyle(
-              fontSize: 48,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
+        ProfilePictureUploader(
+          currentPhotoUrl: photoUrl,
+          userName: username,
+          onUploadComplete: () {
+            // Trigger a refresh of user data after upload
+            // The provider will automatically update
+          },
         ),
         const SizedBox(height: 12),
-        Text(
-          username,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              username,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white),
+            ),
+            if (isAdmin) ...[
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withOpacity(0.2),
+                  border: Border.all(color: Colors.amber, width: 1.5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.verified_user, color: Colors.amber, size: 16),
+                    SizedBox(width: 4),
+                    Text(
+                      'ADMIN',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         ),
         Text(
           email,

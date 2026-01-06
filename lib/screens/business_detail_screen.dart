@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/config_provider.dart';
 
 class BusinessDetailScreen extends ConsumerWidget {
@@ -14,12 +15,10 @@ class BusinessDetailScreen extends ConsumerWidget {
     final businessAsync = ref.watch(businessByIdProvider(businessId));
 
     return Scaffold(
-      // We keep the dimming here, but the GestureDetector below handles the tap
       backgroundColor: Colors.black.withValues(alpha: 0.8),
       body: GestureDetector(
-        // KEY CHANGE 1: Detect taps on the background to close the modal
         behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.of(context).pop(),
+        onTap: () => context.pop(),
         child: Center(
           child: businessAsync.when(
             loading: () => const CircularProgressIndicator(),
@@ -35,8 +34,6 @@ class BusinessDetailScreen extends ConsumerWidget {
                 );
               }
 
-              // KEY CHANGE 2: Wrap the card in a GestureDetector to consume taps
-              // This prevents clicks INSIDE the card from closing the modal
               return GestureDetector(
                 onTap: () {},
                 child: Hero(

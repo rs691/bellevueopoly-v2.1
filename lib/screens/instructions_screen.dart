@@ -146,7 +146,7 @@ class InstructionsScreen extends StatelessWidget {
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
-            onPressed: () => context.go(AppRoutes.map),
+            onPressed: () => context.go(AppRoutes.stopHub),
             icon: const Icon(Icons.map_outlined),
             label: const Text('Open Map'),
           ),

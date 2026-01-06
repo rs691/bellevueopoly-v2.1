@@ -10,7 +10,7 @@ class MobileLandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Welcome'),
+        title: const Text('Welcome Back'),
         centerTitle: true,
         automaticallyImplyLeading: false, // Prevents back button on home
       ),
@@ -21,57 +21,38 @@ class MobileLandingScreen extends StatelessWidget {
           crossAxisSpacing: 16.0,
           mainAxisSpacing: 16.0,
           children: [
-            // 1. Map Tab
+            // 1. Stop Hub (Business Categories)
             NavigationBox(
-              icon: Icons.map,
+              icon: Icons.star,
               label: 'Stop Hub',
-              onTap: () => context.go(AppRoutes.map),
+              onTap: () => context.go(AppRoutes.stopHub),
             ),
-            // 2. Business List Tab
+            // 2. Near Me (Map with nearby rewards)
             NavigationBox(
-              icon: Icons.store,
-              label: 'Boulevard Partners',
-              onTap: () => context.go(AppRoutes.businesses),
+              icon: Icons.location_on,
+              label: 'Near Me',
+              onTap: () => context.go(AppRoutes.nearMe),
             ),
 
-            // 3. Upload Images (The new requested box)
-            NavigationBox(
-              icon: Icons.camera_alt,
-              label: 'Upload Images',
-              onTap: () => context.go(AppRoutes.upload),
-            ),
-
-            // 4. Leaderboard
-            NavigationBox(
-              icon: Icons.leaderboard,
-              label: 'Leaderboard',
-              onTap: () => context.go(AppRoutes.leaderboard),
-            ),
-
-            // 4. Admin Panel (Placeholder)
+            // 3. Prizes
             NavigationBox(
               icon: Icons.emoji_events,
-              label: 'Admin Panel',
-              onTap: () => context.go(AppRoutes.admin),
+              label: 'Prizes',
+              onTap: () => context.go(AppRoutes.prizes),
             ),
 
-            // 5. Profile Tab
+            // 4. FAQs (in Rules & Prizes screen)
+            NavigationBox(
+              icon: Icons.help,
+              label: 'FAQs',
+              onTap: () => context.go(AppRoutes.rulesAndPrizes),
+            ),
+
+            // 5. My Account / Profile
             NavigationBox(
               icon: Icons.person,
               label: 'My Account',
               onTap: () => context.go(AppRoutes.profile),
-            ),
-            // 6. Game Tab
-            NavigationBox(
-              icon: Icons.games,
-              label: 'Game',
-              onTap: () => context.go(AppRoutes.game),
-            ),
-            // 6. Game Tab
-            NavigationBox(
-              icon: Icons.games,
-              label: 'Casual Game',
-              onTap: () => context.go(AppRoutes.casualGame),
             ),
           ],
         ),

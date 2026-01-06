@@ -22,16 +22,18 @@ class MainScaffold extends StatelessWidget {
 
   int _calculateCurrentIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
+    // Tab 0: HOME -> /
     if (location == '/') {
       return 0;
-    } else if (location.startsWith('/map')) {
+    // Tab 1: STOPS -> /stop-hub
+    } else if (location.startsWith('/stop-hub')) {
       return 1;
-    } else if (location.startsWith('/businesses')) {
-      return 2;
-    } else if (location.startsWith('/profile')) {
+    // Tab 2: QR Scanner (modal, no route)
+    // Tab 3: PRIZES -> /prizes
+    } else if (location.startsWith('/prizes')) {
       return 3;
-    } else if (location.startsWith(AppRoutes.game) ||
-        location.startsWith(AppRoutes.casualGame)) {
+    // Tab 4: NEAR ME -> /near-me
+    } else if (location.startsWith('/near-me')) {
       return 4;
     }
     return 0;
@@ -42,19 +44,23 @@ class MainScaffold extends StatelessWidget {
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
-        context.go(AppRoutes.home); // Welcome Back
+        context.go(AppRoutes.home); // HOME -> Welcome Back
         break;
       case 1:
-        context.go(AppRoutes.map); // Map
+        context.go(AppRoutes.stopHub); // STOPS -> Stop Hub
         break;
       case 2:
-        context.go(AppRoutes.businesses); // List
+        // QR Scanner - TODO: Open modal/overlay for QR scanning
+        // For now, do nothing (or show a snackbar)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('QR Scanner coming soon!')),
+        );
         break;
       case 3:
-        context.go(AppRoutes.profile); // Profile
+        context.go(AppRoutes.prizes); // PRIZES
         break;
       case 4:
-        context.go(AppRoutes.game); // Game
+        context.go(AppRoutes.nearMe); // NEAR ME -> Map with nearby rewards
         break;
     }
   }

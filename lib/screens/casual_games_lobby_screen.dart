@@ -24,7 +24,7 @@ class CasualGamesLobbyScreen extends StatelessWidget {
             title: 'Available Rewards Nearby',
             icon: Icons.card_giftcard,
             color: Colors.purple,
-            onTap: () => context.push(AppRoutes.rewardsNearby),
+            onTap: () => context.push(AppRoutes.nearMe),
           ),
           _GameTile(
             title: 'Mini Game 1',

@@ -1,10 +1,16 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return request.auth != null 
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
     // Allow public read access to businesses so users can see the list
     match /businesses/{document=**} {
       allow read: if true;
-      allow write: if false; // Only admins (via scripts) should write
+      allow write: if isAdmin(); // Admins can manage businesses
     }
     
     // User data should be private to the user
@@ -17,6 +23,15 @@ service cloud.firestore {
     // Scans
     match /scans/{scanId} {
       allow read, write: if request.auth != null;
+    }
+    
+    // Images - users can only manage their own images
+    match /images/{imageId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null 
+                   && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if request.auth != null 
+                           && resource.data.userId == request.auth.uid;
     }
   }
 }

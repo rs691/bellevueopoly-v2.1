@@ -108,7 +108,7 @@ class CheckinHistoryScreen extends StatelessWidget {
                                   color: Colors.white.withOpacity(0.08),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   child: ListTile(
-                                    onTap: () => context.push('${AppRoutes.map}/business/$businessId'),
+                                    onTap: () => context.push('${AppRoutes.stopHub}/business/$businessId'),
                                     leading: CircleAvatar(
                                       backgroundColor: Colors.white24,
                                       backgroundImage: (imageUrl != null && imageUrl.isNotEmpty)

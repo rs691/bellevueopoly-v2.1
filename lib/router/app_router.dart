@@ -26,6 +26,11 @@ import '../screens/password_reset_screen.dart';
 import '../screens/email_verification_screen.dart';
 import '../screens/checkin_history_screen.dart';
 import '../screens/instructions_screen.dart';
+import '../screens/admin_test_screen.dart';
+import '../screens/rules_and_prizes_screen.dart';
+import '../screens/prizes_screen.dart';
+import '../screens/terms_screen.dart';
+import '../models/game_rules.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -38,19 +43,24 @@ class AppRoutes {
 
   // Authenticated Shell Routes
   static const String home = '/'; // <--- THIS must be '/'
-  static const String map = '/map';
+  static const String stopHub = '/stop-hub';
   static const String businesses = '/businesses';
   static const String profile = '/profile';
-  static const String businessDetail = 'business/:id';
+  // Root-level business detail modal (works from any tab without changing it)
+  static const String businessDetail = '/business/:id';
   static const String upload = '/upload';
   static const String admin = '/admin';
   static const String leaderboard = '/leaderboard';
   static const String game = '/game';
-  static const String casualGame = '/CasualGamesLobbyScreen';
-  static const String rewardsNearby = '/rewards-nearby';
+  static const String casualGames = '/casual-games';
+  static const String nearMe = '/near-me';
   static const String monopolyBoard = '/monopolyBoard';
   static const String checkinHistory = '/checkin-history';
   static const String instructions = '/instructions';
+  static const String adminTest = '/admin-test';
+  static const String rulesAndPrizes = '/rules-and-prizes';
+  static const String prizes = '/prizes';
+  static const String terms = '/terms';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -79,6 +89,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     initialLocation: AppRoutes.splash,
     navigatorKey: _rootNavigatorKey,
     routes: [
+      // ROOT-LEVEL MODAL BUSINESS DETAIL ROUTE
+      GoRoute(
+        path: AppRoutes.businessDetail,
+        pageBuilder: (context, state) {
+          final String id = state.pathParameters['id']!;
+
+          return CustomTransitionPage(
+            key: state.pageKey,
+            child: BusinessDetailScreen(businessId: id),
+            barrierDismissible: true,
+            barrierColor: Colors.black54,
+            opaque: false,
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutBack,
+                  ),
+                  child: child,
+                ),
+              );
+            },
+            transitionDuration: const Duration(milliseconds: 300),
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
@@ -124,6 +162,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.leaderboard,
         builder: (context, state) => const LeaderboardScreen(),
       ),
+      GoRoute(
+        path: AppRoutes.adminTest,
+        builder: (context, state) => const AdminTestScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.rulesAndPrizes,
+        builder: (context, state) {
+          final gameRules = state.extra as GameRules?;
+          // Default to monopoly rules if none provided
+          return RulesAndPrizesScreen(
+            gameRules: gameRules ?? const GameRulesPlaceholder(),
+          );
+        },
+      ),
       // SHELL ROUTE (Persistent Bottom Nav)
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
@@ -136,42 +188,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.home,
             builder: (context, state) => const MobileLandingScreen(),
           ),
-          // 2. MAP TAB
+          // 2. STOP HUB TAB (Business Categories)
           GoRoute(
-            path: AppRoutes.map,
+            path: AppRoutes.stopHub,
             builder: (context, state) => const HomeScreen(),
             routes: [
-              GoRoute(
-                path: AppRoutes.businessDetail,
-                parentNavigatorKey: _rootNavigatorKey, // Covers the bottom nav
-                pageBuilder: (context, state) {
-                  final String id = state.pathParameters['id']!;
-
-                  return CustomTransitionPage(
-                    key: state.pageKey,
-                    child: BusinessDetailScreen(businessId: id),
-                    barrierDismissible: true,
-                    barrierColor:
-                        Colors.black54, // Darkens the screen behind it
-                    opaque: false, // Allows transparency
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                          // Scale and Fade animation like a popup
-                          return FadeTransition(
-                            opacity: animation,
-                            child: ScaleTransition(
-                              scale: CurvedAnimation(
-                                parent: animation,
-                                curve: Curves.easeOutBack,
-                              ),
-                              child: child,
-                            ),
-                          );
-                        },
-                    transitionDuration: const Duration(milliseconds: 300),
-                  );
-                },
-              ),
+              // No nested business route here; use root-level modal route instead
             ],
           ),
 
@@ -197,12 +219,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             builder: (context, state) => const LeaderboardScreen(),
           ),
           GoRoute(
-            path: AppRoutes.casualGame,
+            path: AppRoutes.casualGames,
             builder: (context, state) => const CasualGamesLobbyScreen(),
           ),
-          // 7. REWARDS NEARBY
+          // 7. NEAR ME (Map with nearby rewards)
           GoRoute(
-            path: AppRoutes.rewardsNearby,
+            path: AppRoutes.nearMe,
             builder: (context, state) => const RewardsNearbyScreen(),
           ),
           // 8. MONOPOLY BOARD GAME
@@ -219,6 +241,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.instructions,
             builder: (context, state) => const InstructionsScreen(),
+          ),
+          // 11. PRIZES
+          GoRoute(
+            path: AppRoutes.prizes,
+            builder: (context, state) => const PrizesScreen(),
+          ),
+          // 12. TERMS & CONDITIONS
+          GoRoute(
+            path: AppRoutes.terms,
+            builder: (context, state) => const TermsScreen(),
           ),
         ],
       ),

@@ -15,23 +15,23 @@ class BottomNavBar extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
-          label: 'Home',
+          label: 'HOME',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.map),
-          label: 'Map',
+          icon: Icon(Icons.star),
+          label: 'STOPS',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.business),
-          label: 'Businesses',
+          icon: Icon(Icons.qr_code_scanner),
+          label: 'QR',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
+          icon: Icon(Icons.emoji_events),
+          label: 'PRIZES',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.qr_code_2),
-          label: 'Game',
+          icon: Icon(Icons.location_on),
+          label: 'NEAR ME',
         ),
       ],
     );

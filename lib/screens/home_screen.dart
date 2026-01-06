@@ -41,9 +41,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             position: gmf.LatLng(business.latitude, business.longitude),
             infoWindow: gmf.InfoWindow(
               title: business.name,
-              onTap: () => context.go('/map/business/${business.id}'),
+              onTap: () => context.push('/business/${business.id}'),
             ),
-            onTap: () => context.go('/map/business/${business.id}'),
+            onTap: () => context.push('/business/${business.id}'),
           ))
               .toSet();
         });
@@ -120,7 +120,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               }
               return _BusinessCard(
                 business: business,
-                onTap: () => context.go('/map/business/${business.id}'),
+                onTap: () => context.push('/business/${business.id}'),
               );
             },
           ),
