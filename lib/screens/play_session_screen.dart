@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/config_provider.dart';
+import '../widgets/async_image.dart';
 import '../theme/app_theme.dart';
 import 'qr_scanner_overlay.dart';
 
@@ -58,7 +59,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                           const SizedBox(height: 40),
                           Text(
                             'MONOPOLY GO',
-                            style: AppTheme.theme.textTheme.displayMedium?.copyWith(
+                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w900,
                             ),
@@ -67,7 +68,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Scan a business QR code to check in, earn points, and unlock properties!',
-                            style: AppTheme.theme.textTheme.bodyLarge?.copyWith(
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                               color: Colors.white70,
                             ),
                             textAlign: TextAlign.center,
@@ -123,18 +124,17 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
           child: Column(
             children: [
               // Business "Hero" Header
-              Container(
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(
-                    image: NetworkImage(business?.heroImageUrl ?? ''),
-                    fit: BoxFit.cover,
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: AsyncImage(
+                  imageUrl: business?.heroImageUrl,
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 20),
-              Text(business?.name ?? '', style: AppTheme.theme.textTheme.headlineSmall),
+              Text(business?.name ?? '', style: Theme.of(context).textTheme.headlineSmall),
               const Spacer(),
               // The "VISIT" Action
               ElevatedButton.icon(

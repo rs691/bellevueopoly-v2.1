@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../providers/business_provider.dart'; // Ensure this matches your provider file
 import '../models/business_model.dart';
+import '../widgets/async_image.dart';
 import '../theme/app_theme.dart';
 
 class BusinessListScreen extends ConsumerStatefulWidget {
@@ -207,18 +208,9 @@ class _BusinessListCard extends StatelessWidget {
               child: SizedBox(
                 width: imageSize,
                 height: imageSize,
-                child: business.heroImageUrl != null
-                    ? CachedNetworkImage(
-                  imageUrl: business.heroImageUrl!,
+                child: AsyncImage(
+                  imageUrl: business.heroImageUrl,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[200]),
-                  errorWidget: (context, url, error) =>
-                  const Icon(Icons.error),
-                )
-                    : Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.store, color: Colors.grey),
                 ),
               ),
             ),

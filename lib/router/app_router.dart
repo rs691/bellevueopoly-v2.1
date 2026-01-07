@@ -34,6 +34,8 @@ import '../screens/qr_scan_history_screen.dart';
 import '../models/game_rules.dart';
 import '../screens/stop_hub_screen.dart';
 import '../screens/game_hub_screen.dart';
+import '../screens/game_settings_screen.dart';
+import '../screens/achievements_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -219,6 +221,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.casualGames,
             builder: (context, state) => const CasualGamesLobbyScreen(),
+            routes: [
+              GoRoute(
+                path: 'settings',
+                builder: (context, state) => const GameSettingsScreen(),
+              ),
+              GoRoute(
+                path: 'achievements',
+                builder: (context, state) => const AchievementsScreen(),
+              ),
+            ],
           ),
           // 7. NEAR ME (Map with nearby rewards)
           GoRoute(

@@ -8,7 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../widgets/glassmorphic_card.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/responsive_form_container.dart';
-import '../services/firestore_service.dart'; // Import your service
+import '../services/firestore_service.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -76,16 +77,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: _email, password: _password);
 
       if (userCredential.user != null) {
         // Check if email is verified
         if (!userCredential.user!.emailVerified) {
           if (mounted) {
-            _showError('Please verify your email before logging in.');
+            _showError(
+              'Please verify your email before logging in.',
+              Icons.email_outlined,
+            );
             // Optionally redirect to verification screen
             await Future.delayed(const Duration(milliseconds: 500));
             if (mounted) {
@@ -97,9 +99,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         }
       }
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Login failed.');
+      final authService = ref.read(authServiceProvider);
+      if (e.code == 'network-request-failed') {
+        _showError(
+          'Network error. Please check your internet connection.',
+          Icons.wifi_off,
+          showRetry: true,
+        );
+      } else {
+        _showError(authService.getErrorMessage(e), Icons.error_outline);
+      }
     } catch (e) {
-      _showError('An unexpected error occurred.');
+      _showError(
+        'An unexpected error occurred. Please try again.',
+        Icons.error_outline,
+        showRetry: true,
+      );
     }
 
     if (mounted) setState(() => _isLoading = false);
@@ -131,30 +146,56 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           await FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
-              .set({
-            'isAdmin': true,
-            'isAnonymous': true,
-          }, SetOptions(merge: true)); // Merge to avoid overwriting other fields
+              .set(
+                {'isAdmin': true, 'isAnonymous': true},
+                SetOptions(merge: true),
+              ); // Merge to avoid overwriting other fields
         }
       }
 
       if (mounted) context.go('/');
     } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? 'Bypass failed.');
+      final authService = ref.read(authServiceProvider);
+      if (e.code == 'network-request-failed') {
+        _showError(
+          'Network error. Cannot connect in guest mode.',
+          Icons.wifi_off,
+          showRetry: true,
+        );
+      } else {
+        _showError(authService.getErrorMessage(e), Icons.error_outline);
+      }
     } catch (e) {
-      _showError('An unexpected error occurred during bypass.');
+      _showError(
+        'An unexpected error occurred during bypass.',
+        Icons.error_outline,
+      );
     }
 
     if (mounted) setState(() => _isLoading = false);
   }
 
   // Helper to reduce code duplication for showing errors
-  void _showError(String message) {
+  void _showError(String message, IconData icon, {bool showRetry = false}) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(message),
+          content: Row(
+            children: [
+              Icon(icon, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text(message)),
+            ],
+          ),
           backgroundColor: Theme.of(context).colorScheme.error,
+          duration: Duration(seconds: showRetry ? 4 : 3),
+          action: showRetry
+              ? SnackBarAction(
+                  label: 'Retry',
+                  textColor: Colors.white,
+                  onPressed: _trySubmit,
+                )
+              : null,
         ),
       );
     }
@@ -243,9 +284,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   width: double.infinity,
                                   height: 50,
                                   child: ElevatedButton(
-                                    onPressed: _isLoading
-                                        ? null
-                                        : _trySubmit,
+                                    onPressed: _isLoading ? null : _trySubmit,
                                     child: _isLoading
                                         ? const CircularProgressIndicator(
                                             color: Colors.white,
@@ -258,10 +297,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   width: double.infinity,
                                   height: 50,
                                   child: TextButton(
-                                    onPressed:
-                                        _isLoading
-                                            ? null
-                                            : _signInAnonymously,
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _signInAnonymously,
                                     child: const Text(
                                       'Developer Bypass (Guest)',
                                       style: TextStyle(
@@ -347,4 +385,3 @@ class _Particle {
     required this.speed,
   });
 }
-

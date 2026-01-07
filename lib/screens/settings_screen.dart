@@ -57,16 +57,28 @@ class SettingsScreen extends StatelessWidget {
             _buildSectionTitle(context, 'Notifications'),
             _buildSettingsCard([
               SwitchListTile(
-                title: const Text('Push Notifications', style: TextStyle(color: Colors.white)),
+                title: const Text(
+                  'Push Notifications',
+                  style: TextStyle(color: Colors.white),
+                ),
                 value: true,
                 onChanged: (val) {},
-                secondary: const Icon(Icons.notifications_outlined, color: Colors.white),
+                secondary: const Icon(
+                  Icons.notifications_outlined,
+                  color: Colors.white,
+                ),
               ),
               SwitchListTile(
-                title: const Text('Email Updates', style: TextStyle(color: Colors.white)),
+                title: const Text(
+                  'Email Updates',
+                  style: TextStyle(color: Colors.white),
+                ),
                 value: false,
                 onChanged: (val) {},
-                secondary: const Icon(Icons.email_outlined, color: Colors.white),
+                secondary: const Icon(
+                  Icons.email_outlined,
+                  color: Colors.white,
+                ),
               ),
             ]),
             const SizedBox(height: 16),
@@ -78,7 +90,11 @@ class SettingsScreen extends StatelessWidget {
                 Icons.menu_book_outlined,
                 onTap: () => context.push(AppRoutes.instructions),
               ),
-              _buildListTile(context, 'Privacy Policy', Icons.privacy_tip_outlined),
+              _buildListTile(
+                context,
+                'Privacy Policy',
+                Icons.privacy_tip_outlined,
+              ),
               _buildListTile(context, 'Terms of Service', Icons.gavel_outlined),
             ]),
           ],
@@ -92,10 +108,10 @@ class SettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.only(left: 8.0, bottom: 8.0),
       child: Text(
         title.toUpperCase(),
-        style: Theme.of(context)
-            .textTheme
-            .labelMedium
-            ?.copyWith(color: Colors.white70, letterSpacing: 1.2),
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: Colors.white70,
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }
@@ -130,25 +146,23 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Logout'),
-        content: const Text('Are you sure you want to log out?'),
+        content: const Text('Are you sure you want to logout?'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: const Text('Logout')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Logout'),
+          ),
         ],
       ),
     );
 
-    if (confirmed != true) return;
-
-    try {
+    if (confirmed == true && context.mounted) {
       await FirebaseAuth.instance.signOut();
-      if (context.mounted) context.go('/landing');
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Logout failed: $e')),
-        );
-      }
+      context.go('/landing');
     }
   }
 
@@ -157,12 +171,20 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Account'),
-        content: const Text('This will permanently delete your account and sign you out. Continue?'),
+        content: const Text(
+          'This will permanently delete your account and sign you out. Continue?',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.redAccent),
+            ),
           ),
         ],
       ),
@@ -192,7 +214,11 @@ class SettingsScreen extends StatelessWidget {
       final uid = user.uid;
 
       // Delete device documents (best-effort)
-      final devices = await firestore.collection('users').doc(uid).collection('devices').get();
+      final devices = await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('devices')
+          .get();
       for (final doc in devices.docs) {
         await doc.reference.delete();
       }
@@ -203,7 +229,7 @@ class SettingsScreen extends StatelessWidget {
       // Delete auth user
       await user.delete();
 
-      // Ensure sign out
+      // Ensure sign out (no confirmation needed - already confirmed for account deletion)
       await FirebaseAuth.instance.signOut();
 
       if (context.mounted) {
@@ -216,14 +242,17 @@ class SettingsScreen extends StatelessWidget {
           : 'Delete failed: ${e.message ?? e.code}';
       if (context.mounted) {
         Navigator.of(context).pop(); // close progress
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
       }
     } catch (e) {
       if (context.mounted) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Delete failed: $e')));
       }
     }
   }
 }
-

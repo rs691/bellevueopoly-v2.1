@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmf;
 import 'package:geolocator/geolocator.dart';
+import '../widgets/async_image.dart';
+import '../widgets/async_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/business_model.dart';
 import '../providers/business_provider.dart';
@@ -398,16 +400,13 @@ class _BusinessDistanceCard extends StatelessWidget {
               // Business Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: business.heroImageUrl != null
-                    ? Image.network(
-                        business.heroImageUrl!,
-                        width: 80,
-                        height: 80,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildPlaceholderImage(),
-                      )
-                    : _buildPlaceholderImage(),
+                child: AsyncImage(
+                  imageUrl: business.heroImageUrl,
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  placeholderAsset: 'assets/images/restaurant_placeholder.png',
+                ),
               ),
               const SizedBox(width: 12),
 

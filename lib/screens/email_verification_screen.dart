@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../widgets/glassmorphic_card.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/responsive_form_container.dart';
+import '../widgets/logout_confirmation_dialog.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -93,8 +94,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
       await Future.delayed(const Duration(seconds: 3));
       try {
         await FirebaseAuth.instance.currentUser!.reload();
-        if (mounted &&
-            FirebaseAuth.instance.currentUser!.emailVerified) {
+        if (mounted && FirebaseAuth.instance.currentUser!.emailVerified) {
           _showSuccessAndNavigate();
           break;
         }
@@ -118,19 +118,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
   void _showSuccess(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.green),
     );
   }
 
@@ -176,8 +170,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
   }
 
   Future<void> _logout() async {
-    await FirebaseAuth.instance.signOut();
-    if (mounted) {
+    final success = await LogoutConfirmationDialog.show(context);
+    // Dialog handles navigation, only redirect to login if successful
+    if (success && mounted) {
       context.go('/login');
     }
   }
@@ -276,7 +271,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                       GlassmorphicCard(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 12.0),
+                            horizontal: 16.0,
+                            vertical: 12.0,
+                          ),
                           child: Text(
                             widget.email,
                             textAlign: TextAlign.center,
@@ -328,8 +325,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed:
-                              _isCheckingVerification ? null : _checkEmailVerification,
+                          onPressed: _isCheckingVerification
+                              ? null
+                              : _checkEmailVerification,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.purple,
                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -344,7 +342,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : const Text(
@@ -378,7 +377,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white),
+                                      Colors.white,
+                                    ),
                                   ),
                                 )
                               : Text(

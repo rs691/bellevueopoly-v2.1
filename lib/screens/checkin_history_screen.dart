@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import '../widgets/async_image.dart';
 import '../widgets/gradient_background.dart';
 import '../theme/app_theme.dart';
 import '../router/app_router.dart';
@@ -109,17 +110,13 @@ class CheckinHistoryScreen extends StatelessWidget {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   child: ListTile(
                                     onTap: () => context.push('${AppRoutes.stopHub}/business/$businessId'),
-                                    leading: CircleAvatar(
-                                      backgroundColor: Colors.white24,
-                                      backgroundImage: (imageUrl != null && imageUrl.isNotEmpty)
-                                          ? NetworkImage(imageUrl)
-                                          : null,
-                                      child: (imageUrl == null || imageUrl.isEmpty)
-                                          ? Text(
-                                              businessName.isNotEmpty ? businessName[0].toUpperCase() : '?',
-                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                            )
-                                          : null,
+                                    leading: ClipOval(
+                                      child: AsyncImage(
+                                        imageUrl: imageUrl,
+                                        width: 40,
+                                        height: 40,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                     title: Text(businessName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                                     subtitle: Column(

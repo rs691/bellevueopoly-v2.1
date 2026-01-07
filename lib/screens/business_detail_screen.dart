@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/config_provider.dart';
+import '../widgets/async_image.dart';
 
 class BusinessDetailScreen extends ConsumerWidget {
   final String businessId;
@@ -65,18 +66,10 @@ class BusinessDetailScreen extends ConsumerWidget {
                                 expandedHeight: 250,
                                 backgroundColor: Colors.transparent,
                                 flexibleSpace: FlexibleSpaceBar(
-                                  background: business.heroImageUrl != null
-                                      ? CachedNetworkImage(
-                                          imageUrl: business.heroImageUrl!,
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Container(
-                                          color: Colors.grey[800],
-                                          child: const Icon(
-                                            Icons.store,
-                                            size: 60,
-                                          ),
-                                        ),
+                                  background: AsyncImage(
+                                    imageUrl: business.heroImageUrl,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
 

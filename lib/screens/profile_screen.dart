@@ -8,6 +8,7 @@ import '../widgets/gradient_background.dart';
 import '../widgets/profile_picture_uploader.dart';
 import '../widgets/user_image_gallery.dart';
 import '../widgets/stat_card.dart';
+import '../widgets/logout_confirmation_dialog.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_spacing.dart';
 import '../router/app_router.dart';
@@ -281,14 +282,7 @@ class ProfileScreen extends ConsumerWidget {
 
   Widget _buildLogoutButton(BuildContext context, FirebaseAuth auth) {
     return ElevatedButton.icon(
-      onPressed: () async {
-        await auth.signOut();
-        // Go back to the landing screen after logout.
-        // The router's redirect logic will handle the rest.
-        if (context.mounted) {
-          context.go('/landing');
-        }
-      },
+      onPressed: () => LogoutConfirmationDialog.show(context),
       icon: const Icon(Icons.logout),
       label: const Text('Logout'),
       style: ElevatedButton.styleFrom(

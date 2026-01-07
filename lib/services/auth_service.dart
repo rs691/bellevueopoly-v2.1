@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'device_service.dart';
 
-
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -23,10 +22,8 @@ class AuthService {
     required String username,
   }) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
 
       // Create a new user document in Firestore
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
@@ -48,7 +45,12 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       // Handle errors
       debugPrint('Auth Error: ${e.message}');
-      return null;
+      rethrow; // Rethrow to allow caller to handle with proper error messages
+    } catch (e) {
+      debugPrint('Unexpected error during sign up: $e');
+      throw Exception(
+        'Network error. Please check your connection and try again.',
+      );
     }
   }
 
@@ -74,7 +76,12 @@ class AuthService {
     } on FirebaseAuthException catch (e) {
       // Handle errors
       debugPrint('Auth Error: ${e.message}');
-      return null;
+      rethrow; // Rethrow to allow caller to handle with proper error messages
+    } catch (e) {
+      debugPrint('Unexpected error during sign in: $e');
+      throw Exception(
+        'Network error. Please check your connection and try again.',
+      );
     }
   }
 
@@ -113,7 +120,12 @@ class AuthService {
       return false;
     } on FirebaseAuthException catch (e) {
       debugPrint('Email verification error: ${e.message}');
-      return false;
+      throw Exception(getErrorMessage(e));
+    } catch (e) {
+      debugPrint('Unexpected error sending verification: $e');
+      throw Exception(
+        'Network error. Please check your connection and try again.',
+      );
     }
   }
 
@@ -128,7 +140,12 @@ class AuthService {
       return false;
     } on FirebaseAuthException catch (e) {
       debugPrint('Reload error: ${e.message}');
-      return false;
+      throw Exception(getErrorMessage(e));
+    } catch (e) {
+      debugPrint('Unexpected error checking verification: $e');
+      throw Exception(
+        'Network error. Please check your connection and try again.',
+      );
     }
   }
 
@@ -144,7 +161,12 @@ class AuthService {
       return true;
     } on FirebaseAuthException catch (e) {
       debugPrint('Password reset error: ${e.message}');
-      return false;
+      throw Exception(getErrorMessage(e));
+    } catch (e) {
+      debugPrint('Unexpected error during password reset: $e');
+      throw Exception(
+        'Network error. Please check your connection and try again.',
+      );
     }
   }
 
@@ -155,6 +177,8 @@ class AuthService {
         return 'No user found with this email.';
       case 'invalid-email':
         return 'Invalid email address.';
+      case 'invalid-credential':
+        return 'Invalid email or password.';
       case 'user-disabled':
         return 'This user account has been disabled.';
       case 'wrong-password':
@@ -167,9 +191,21 @@ class AuthService {
         return 'This operation is not allowed.';
       case 'too-many-requests':
         return 'Too many attempts. Please try again later.';
+      case 'network-request-failed':
+        return 'Network error. Please check your internet connection.';
+      case 'requires-recent-login':
+        return 'Please log in again to complete this action.';
       default:
         return e.message ?? 'An authentication error occurred.';
     }
+  }
+
+  // Check if error is network-related
+  bool isNetworkError(dynamic error) {
+    if (error is FirebaseAuthException) {
+      return error.code == 'network-request-failed';
+    }
+    return error.toString().toLowerCase().contains('network');
   }
 }
 

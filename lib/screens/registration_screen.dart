@@ -8,6 +8,7 @@ import '../widgets/glassmorphic_card.dart';
 import '../providers/firestore_provider.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/responsive_form_container.dart';
+import '../services/auth_service.dart';
 
 class RegistrationScreen extends ConsumerStatefulWidget {
   const RegistrationScreen({super.key});
@@ -81,17 +82,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
     });
 
     try {
-      final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _email,
-        password: _password,
-      );
+      final userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: _email, password: _password);
 
       if (userCredential.user != null) {
         // Add user to Firestore
-        await ref.read(firestoreServiceProvider).addUser(
-          user: userCredential.user!,
-          username: _username,
-        );
+        await ref
+            .read(firestoreServiceProvider)
+            .addUser(user: userCredential.user!, username: _username);
 
         // Send email verification
         await userCredential.user!.sendEmailVerification();
@@ -103,19 +101,62 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
+        final authService = ref.read(authServiceProvider);
+        IconData icon = Icons.error_outline;
+        String message;
+        bool showRetry = false;
+
+        if (e.code == 'network-request-failed') {
+          icon = Icons.wifi_off;
+          message = 'Network error. Please check your internet connection.';
+          showRetry = true;
+        } else {
+          message = authService.getErrorMessage(e);
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(e.message ?? 'Registration failed.'),
+            content: Row(
+              children: [
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text(message)),
+              ],
+            ),
             backgroundColor: Colors.red,
+            duration: Duration(seconds: showRetry ? 4 : 3),
+            action: showRetry
+                ? SnackBarAction(
+                    label: 'Retry',
+                    textColor: Colors.white,
+                    onPressed: _trySubmit,
+                  )
+                : null,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('An unexpected error occurred.'),
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'An unexpected error occurred. Please try again.',
+                  ),
+                ),
+              ],
+            ),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: _trySubmit,
+            ),
           ),
         );
       }
@@ -158,10 +199,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
                       const SizedBox(height: 12),
                       const Text(
                         'Join the adventure!',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.white70, fontSize: 16),
                       ),
                       const SizedBox(height: 40),
 
@@ -313,4 +351,3 @@ class _Particle {
     required this.speed,
   });
 }
-
