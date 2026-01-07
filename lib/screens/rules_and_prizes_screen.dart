@@ -49,10 +49,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.blue.shade600,
-                      Colors.purple.shade600,
-                    ],
+                    colors: [Colors.blue.shade600, Colors.purple.shade600],
                   ),
                 ),
                 child: Center(
@@ -131,14 +128,12 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...widget.gameRules.quickRules.asMap().entries.map(
-            (entry) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: _buildRulePoint(entry.key + 1, entry.value),
-              );
-            },
-          ),
+          ...widget.gameRules.quickRules.asMap().entries.map((entry) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildRulePoint(entry.key + 1, entry.value),
+            );
+          }),
           const SizedBox(height: 16),
           ElevatedButton.icon(
             onPressed: () => _tabController.animateTo(1),
@@ -173,16 +168,17 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 16, height: 1.5),
-          ),
+          child: Text(text, style: const TextStyle(fontSize: 16, height: 1.5)),
         ),
       ],
     );
   }
 
   Widget _buildFullRulesTab() {
+    final fullRules = widget.gameRules.fullRules.isNotEmpty
+        ? widget.gameRules.fullRules
+        : _fallbackFullRules;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: ListView(
@@ -192,9 +188,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...widget.gameRules.fullRules.map(
-            (section) => _buildRuleSection(section),
-          ),
+          ...fullRules.map((section) => _buildRuleSection(section)),
         ],
       ),
     );
@@ -256,7 +250,10 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                     children: [
                       const Text(
                         'Example:',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -275,6 +272,10 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   }
 
   Widget _buildPrizesTab() {
+    final prizes = widget.gameRules.prizes.isNotEmpty
+        ? widget.gameRules.prizes
+        : _fallbackPrizes;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: ListView(
@@ -284,9 +285,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...widget.gameRules.prizes.map(
-            (prize) => _buildPrizeCard(prize),
-          ),
+          ...prizes.map((prize) => _buildPrizeCard(prize)),
         ],
       ),
     );
@@ -301,10 +300,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Text(
-                prize.icon ?? '🎁',
-                style: const TextStyle(fontSize: 36),
-              ),
+              Text(prize.icon ?? '🎁', style: const TextStyle(fontSize: 36)),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -339,7 +335,10 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(8),
@@ -361,6 +360,10 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   }
 
   Widget _buildFAQsTab() {
+    final faqs = widget.gameRules.faqs.isNotEmpty
+        ? widget.gameRules.faqs
+        : _fallbackFaqs;
+
     return Padding(
       padding: const EdgeInsets.all(16),
       child: ListView(
@@ -370,9 +373,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
-          ...widget.gameRules.faqs.map(
-            (faq) => _buildFAQItem(faq),
-          ),
+          ...faqs.map((faq) => _buildFAQItem(faq)),
         ],
       ),
     );
@@ -429,3 +430,79 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     return false;
   }
 }
+
+// Placeholder content to keep tabs feeling full when no data is provided
+final List<RuleSection> _fallbackFullRules = [
+  RuleSection(
+    title: 'Overview',
+    description:
+        'Complete challenges around town, scan proof of completion, and earn points toward weekly prizes.',
+    bulletPoints: [
+      'Check in at participating locations during business hours',
+      'Scan posted QR codes after eligible actions to lock in points',
+      'Track progress in the Game Hub and redeem prizes in the Prizes tab',
+    ],
+  ),
+  RuleSection(
+    title: 'Earning Points',
+    description:
+        'Every visit, scan, and challenge completion adds to your weekly total. Bonus multipliers appear on weekends.',
+    bulletPoints: [
+      'Daily streaks add +25% to earned points for that day',
+      'Featured partners may award double points during promos',
+      'Receipts must be scanned within 24 hours to qualify',
+    ],
+    example:
+        'Example: Complete a cafe challenge (150 pts) on Saturday with a streak active (+25%) for a total of 188 pts.',
+  ),
+  RuleSection(
+    title: 'Fair Play',
+    description:
+        'One account per player. Duplicate scans, tampered QR codes, or scripted submissions may be voided.',
+    bulletPoints: [
+      'Keep location services on during scans for validation',
+      'Report damaged QR codes to support@bellevueopoly.com',
+      'Staff may ask to verify your account name with an ID',
+    ],
+  ),
+];
+
+final List<Prize> _fallbackPrizes = [
+  Prize(
+    title: 'Weekly Champion',
+    description: 'Top scorer wins a feature reward plus bonus points.',
+    points: 500,
+    icon: '🏆',
+    details: 'Awarded every Monday at 9 AM.',
+  ),
+  Prize(
+    title: 'Local Hero Bundle',
+    description: 'Gift cards to neighborhood favorites and limited merch.',
+    points: 350,
+    icon: '🎁',
+  ),
+  Prize(
+    title: 'Flash Drop',
+    description: 'Surprise reward that appears for the first 50 redemptions.',
+    points: 150,
+    icon: '⚡',
+  ),
+];
+
+final List<FAQ> _fallbackFaqs = [
+  FAQ(
+    question: 'How do I join a challenge?',
+    answer:
+        'Open the Game Hub, pick a challenge card, and follow the steps. You will see a scanner prompt when proof is needed.',
+  ),
+  FAQ(
+    question: 'Why was my scan rejected?',
+    answer:
+        'Most rejections are due to glare or expired codes. Clean your lens, increase brightness, and rescan within the 24-hour window.',
+  ),
+  FAQ(
+    question: 'When do points reset?',
+    answer:
+        'Points reset Sunday at 11:59 PM. Use them before they expire or redeem for prizes ahead of time.',
+  ),
+];

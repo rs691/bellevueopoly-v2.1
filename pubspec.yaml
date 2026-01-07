@@ -55,7 +55,6 @@ dependencies:
   flutter_launcher_icons: ^0.14.4
 
 
-
   # For data models (immutable classes, JSON serialization)
   freezed_annotation: ^3.1.0
   json_annotation: ^4.9.0

@@ -2,14 +2,16 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/storage_service.dart';
+import '../providers/user_data_provider.dart';
 
 /// Reusable widget for uploading and displaying profile pictures
-class ProfilePictureUploader extends StatefulWidget {
+class ProfilePictureUploader extends ConsumerStatefulWidget {
   final String? currentPhotoUrl;
   final String userName;
   final VoidCallback? onUploadComplete;
-  
+
   const ProfilePictureUploader({
     super.key,
     this.currentPhotoUrl,
@@ -18,10 +20,12 @@ class ProfilePictureUploader extends StatefulWidget {
   });
 
   @override
-  State<ProfilePictureUploader> createState() => _ProfilePictureUploaderState();
+  ConsumerState<ProfilePictureUploader> createState() =>
+      _ProfilePictureUploaderState();
 }
 
-class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
+class _ProfilePictureUploaderState
+    extends ConsumerState<ProfilePictureUploader> {
   final ImagePicker _picker = ImagePicker();
   final StorageService _storageService = StorageService();
   bool _isUploading = false;
@@ -60,7 +64,9 @@ class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
+        // Refresh user data to show new profile picture
+        ref.refresh(userDataProvider);
         widget.onUploadComplete?.call();
       }
     } catch (e) {
@@ -81,8 +87,8 @@ class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
 
   @override
   Widget build(BuildContext context) {
-    final String initial = widget.userName.isNotEmpty 
-        ? widget.userName[0].toUpperCase() 
+    final String initial = widget.userName.isNotEmpty
+        ? widget.userName[0].toUpperCase()
         : 'U';
 
     return Stack(
@@ -105,19 +111,17 @@ class _ProfilePictureUploaderState extends State<ProfilePictureUploader> {
                 )
               : null,
         ),
-        
+
         // Upload overlay when uploading
         if (_isUploading)
           Positioned.fill(
             child: CircleAvatar(
               radius: 50,
               backgroundColor: Colors.black54,
-              child: const CircularProgressIndicator(
-                color: Colors.white,
-              ),
+              child: const CircularProgressIndicator(color: Colors.white),
             ),
           ),
-        
+
         // Camera icon button
         if (!_isUploading)
           Positioned(
