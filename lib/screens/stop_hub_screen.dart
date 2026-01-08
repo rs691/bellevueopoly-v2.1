@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as gmf;
 import 'package:geolocator/geolocator.dart';
 import '../widgets/async_image.dart';
-import '../widgets/async_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/business_model.dart';

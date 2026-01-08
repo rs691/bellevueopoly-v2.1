@@ -192,7 +192,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         SnackBar(
           content: Row(
             children: [
-              Icon(icon, color: Colors.white),
+              Icon(icon, color: Colors.black),
               const SizedBox(width: 12),
               Expanded(child: Text(message)),
             ],
