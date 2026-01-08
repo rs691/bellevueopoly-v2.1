@@ -93,7 +93,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   };
 
   return GoRouter(
-    initialLocation: AppRoutes.splash,
+    initialLocation: AppRoutes.landing,
     navigatorKey: _rootNavigatorKey,
     routes: [
       // ROOT-LEVEL MODAL BUSINESS DETAIL ROUTE

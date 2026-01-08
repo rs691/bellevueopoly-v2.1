@@ -26,7 +26,21 @@ class _MainScaffoldState extends State<MainScaffold> {
         _handleSwipe(context);
       },
       child: Scaffold(
-        body: widget.child,
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Global background image for post-login screens
+            Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/gradientBack.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            widget.child,
+          ],
+        ),
         bottomNavigationBar: BottomNavBar(
           currentIndex: _calculateCurrentIndex(context),
           onTap: (index) => _onItemTapped(index, context),
