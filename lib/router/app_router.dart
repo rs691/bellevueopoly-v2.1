@@ -36,6 +36,13 @@ import '../screens/stop_hub_screen.dart';
 import '../screens/game_hub_screen.dart';
 import '../screens/game_settings_screen.dart';
 import '../screens/achievements_screen.dart';
+import '../screens/stop_hub_categories/boulevard_partners_screen.dart';
+import '../screens/stop_hub_categories/patriotic_partners_screen.dart';
+import '../screens/stop_hub_categories/merch_partners_screen.dart';
+import '../screens/stop_hub_categories/giving_partners_screen.dart';
+import '../screens/stop_hub_categories/community_chest_screen.dart';
+import '../screens/stop_hub_categories/wild_cards_screen.dart';
+import '../screens/stop_hub_categories/fun_house_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -68,6 +75,14 @@ class AppRoutes {
   static const String prizes = '/prizes';
   static const String terms = '/terms';
   static const String qrScanHistory = '/qr-scan-history';
+  // Stop Hub Categories
+  static const String boulevardPartners = '/stop-hub/boulevard-partners';
+  static const String patrioticPartners = '/stop-hub/patriotic-partners';
+  static const String merchPartners = '/stop-hub/merch-partners';
+  static const String givingPartners = '/stop-hub/giving-partners';
+  static const String communityChest = '/stop-hub/community-chest';
+  static const String wildCards = '/stop-hub/wild-cards';
+  static const String funHouse = '/stop-hub/fun-house';
 }
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -187,7 +202,34 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: AppRoutes.stopHub,
             builder: (context, state) => const StopHubScreen(),
             routes: [
-              // No nested business route here; use root-level modal route instead
+              GoRoute(
+                path: 'boulevard-partners',
+                builder: (context, state) => const BoulevardPartnersScreen(),
+              ),
+              GoRoute(
+                path: 'patriotic-partners',
+                builder: (context, state) => const PatrioticPartnersScreen(),
+              ),
+              GoRoute(
+                path: 'merch-partners',
+                builder: (context, state) => const MerchPartnersScreen(),
+              ),
+              GoRoute(
+                path: 'giving-partners',
+                builder: (context, state) => const GivingPartnersScreen(),
+              ),
+              GoRoute(
+                path: 'community-chest',
+                builder: (context, state) => const CommunityChestScreen(),
+              ),
+              GoRoute(
+                path: 'wild-cards',
+                builder: (context, state) => const WildCardsScreen(),
+              ),
+              GoRoute(
+                path: 'fun-house',
+                builder: (context, state) => const FunHouseScreen(),
+              ),
             ],
           ),
 
