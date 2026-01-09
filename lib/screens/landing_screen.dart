@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:video_player/video_player.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../router/app_router.dart';
 import '../widgets/glassmorphic_card.dart';
 
@@ -172,22 +173,53 @@ class _LandingScreenState extends State<LandingScreen> {
   Widget _buildTitle() {
     return Column(
       children: [
-        Text(
-          'BELLEVUE',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
-            fontSize: 42,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1,
-          ),
+        Stack(
+          children: [
+            Text(
+              'CHAMBER',
+              style: GoogleFonts.luckiestGuy(
+                fontSize: 85,
+                letterSpacing: 2,
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 10
+                  ..color = Colors.black,
+              ),
+            ),
+            Text(
+              'CHAMBER',
+              style: GoogleFonts.luckiestGuy(
+                fontSize: 85,
+                letterSpacing: 2,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
-        Text(
-          'OPOLY',
-          style: TextStyle(
-            color: const Color(0xFFa78bfa),
-            fontSize: 42,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 6,
+        Transform.translate(
+          offset: const Offset(0, -52),
+          child: Stack(
+            children: [
+              Text(
+                'OPOLY',
+                style: GoogleFonts.luckiestGuy(
+                  fontSize: 85,
+                  letterSpacing: 6,
+                  foreground: Paint()
+                    ..style = PaintingStyle.stroke
+                    ..strokeWidth = 10
+                    ..color = Colors.black,
+                ),
+              ),
+              Text(
+                'OPOLY',
+                style: GoogleFonts.luckiestGuy(
+                  fontSize: 85,
+                  letterSpacing: 6,
+                  color: const Color(0xFFa78bfa),
+                ),
+              ),
+            ],
           ),
         ),
       ],
