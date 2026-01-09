@@ -31,6 +31,22 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
   bool _isLoadingLocation = true;
   String? _locationError;
   String _searchQuery = '';
+  
+  // Filter States
+  String _selectedCategory = 'All';
+  bool _onlyWithRewards = false;
+  bool _onlyWithPoints = false;
+
+  final List<String> _categories = [
+    'All',
+    'Boulevard Partners',
+    'Patriotic Partners',
+    'Merch Partners',
+    'Giving Partners',
+    'Community Chest',
+    'Wild Cards',
+    'Fun House',
+  ];
 
   // Default to Bellevue, NE
   final gmf.LatLng _defaultLocation = const gmf.LatLng(41.15, -95.92);
@@ -233,18 +249,105 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
           Expanded(
             child: Column(
               children: [
-                // Search bar
+                // Search bar and Filter Button
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpacing.md,
                     vertical: AppSpacing.sm,
                   ),
-                  child: custom_search.SearchBar(
-                    hintText: 'Search businesses...',
-                    onChanged: (query) => setState(() => _searchQuery = query),
-                    onClear: () => setState(() => _searchQuery = ''),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: custom_search.SearchBar(
+                          hintText: 'Search businesses...',
+                          onChanged: (query) => setState(() => _searchQuery = query),
+                          onClear: () => setState(() => _searchQuery = ''),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
+                              ? AppColors.primaryPurple
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: IconButton(
+                          icon: Icon(
+                            Icons.tune,
+                            color: (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
+                                ? Colors.white
+                                : AppColors.darkGrey,
+                          ),
+                          onPressed: () => _showFilterSheet(context),
+                          tooltip: 'Filters',
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                // Active Filters Summary (Horizontal Scroll)
+                if (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
+                   SizedBox(
+                    height: 40,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      children: [
+                        if (_onlyWithRewards)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Chip(
+                              label: const Text('Has Rewards', style: TextStyle(fontSize: 12)),
+                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () => setState(() => _onlyWithRewards = false),
+                            ),
+                          ),
+                        if (_onlyWithPoints)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Chip(
+                              label: const Text('Has Points', style: TextStyle(fontSize: 12)),
+                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () => setState(() => _onlyWithPoints = false),
+                            ),
+                          ),
+                        if (_selectedCategory != 'All')
+                          Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Chip(
+                              label: Text(_selectedCategory, style: const TextStyle(fontSize: 12)),
+                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              deleteIcon: const Icon(Icons.close, size: 16),
+                              onDeleted: () => setState(() => _selectedCategory = 'All'),
+                            ),
+                          ),
+                         Padding(
+                           padding: const EdgeInsets.only(right: 8.0),
+                           child: TextButton(
+                             onPressed: () {
+                               setState(() {
+                                 _onlyWithRewards = false;
+                                 _onlyWithPoints = false;
+                                 _selectedCategory = 'All';
+                               });
+                             },
+                             child: const Text('Clear All'),
+                           ),
+                         ),
+                      ],
+                    ),
+                  ),
 
                 // Business list
                 Expanded(
@@ -277,13 +380,30 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
 
                       final items = businesses
                           .where((b) {
-                            // Search filter
+                            // 1. Search filter
                             if (_searchQuery.isNotEmpty &&
                                 !b.name.toLowerCase().contains(
                                   _searchQuery.toLowerCase(),
                                 )) {
                               return false;
                             }
+
+                            // 2. Category Filter
+                            if (_selectedCategory != 'All' && 
+                                b.category != _selectedCategory) {
+                              return false;
+                            }
+
+                            // 3. Rewards Filter (Has promotion)
+                            if (_onlyWithRewards && b.promotion == null) {
+                              return false;
+                            }
+
+                            // 4. Points Filter (Has check-in points > 0)
+                            if (_onlyWithPoints && (b.checkInPoints == null || b.checkInPoints! <= 0)) {
+                              return false;
+                            }
+
                             return b.latitude != 0.0 && b.longitude != 0.0;
                           })
                           .map((business) {
@@ -363,6 +483,164 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showFilterSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.6,
+              minChildSize: 0.4,
+              maxChildSize: 0.9,
+              expand: false,
+              builder: (context, scrollController) {
+                return SingleChildScrollView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Filter Businesses',
+                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setModalState(() {
+                                // Update local state inside modal
+                                setState(() {
+                                  _onlyWithRewards = false;
+                                  _onlyWithPoints = false;
+                                  _selectedCategory = 'All';
+                                });
+                              });
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Reset All'),
+                          ),
+                        ],
+                      ),
+                      const Divider(),
+                      const SizedBox(height: AppSpacing.md),
+                      
+                      // 1. Quick Filters
+                      Text(
+                        'Quick Filters',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          FilterChip(
+                            label: const Text('Rewards Only'),
+                            selected: _onlyWithRewards,
+                            avatar: _onlyWithRewards 
+                                ? const Icon(Icons.check, size: 18) 
+                                : const Icon(Icons.local_offer, size: 18),
+                            onSelected: (bool selected) {
+                              setModalState(() {
+                                setState(() => _onlyWithRewards = selected);
+                              });
+                            },
+                          ),
+                          FilterChip(
+                            label: const Text('Points Only'),
+                            selected: _onlyWithPoints,
+                            avatar: _onlyWithPoints 
+                                ? const Icon(Icons.check, size: 18) 
+                                : const Icon(Icons.star, size: 18),
+                            onSelected: (bool selected) {
+                              setModalState(() {
+                                setState(() => _onlyWithPoints = selected);
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      
+                      const SizedBox(height: AppSpacing.lg),
+                      
+                      // 2. Categories
+                      Text(
+                        'Categories',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: _categories.map((category) {
+                          return ChoiceChip(
+                            label: Text(category),
+                            selected: _selectedCategory == category,
+                            onSelected: (bool selected) {
+                              if (selected) {
+                                setModalState(() {
+                                  setState(() => _selectedCategory = category);
+                                });
+                              }
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      
+                      const SizedBox(height: AppSpacing.xl),
+                      
+                      // Apply Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: AppColors.primaryBlue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Show Results', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 

@@ -204,31 +204,52 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: 'boulevard-partners',
-                builder: (context, state) => const BoulevardPartnersScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const BoulevardPartnersScreen(),
+                ),
               ),
               GoRoute(
                 path: 'patriotic-partners',
-                builder: (context, state) => const PatrioticPartnersScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const PatrioticPartnersScreen(),
+                ),
               ),
               GoRoute(
                 path: 'merch-partners',
-                builder: (context, state) => const MerchPartnersScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const MerchPartnersScreen(),
+                ),
               ),
               GoRoute(
                 path: 'giving-partners',
-                builder: (context, state) => const GivingPartnersScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const GivingPartnersScreen(),
+                ),
               ),
               GoRoute(
                 path: 'community-chest',
-                builder: (context, state) => const CommunityChestScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const CommunityChestScreen(),
+                ),
               ),
               GoRoute(
                 path: 'wild-cards',
-                builder: (context, state) => const WildCardsScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const WildCardsScreen(),
+                ),
               ),
               GoRoute(
                 path: 'fun-house',
-                builder: (context, state) => const FunHouseScreen(),
+                pageBuilder: (context, state) => ZoomTransitionPage(
+                  key: state.pageKey,
+                  child: const FunHouseScreen(),
+                ),
               ),
             ],
           ),
@@ -350,3 +371,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     },
   );
 });
+
+// Custom Transition Page for Zoom/Fade Effect
+class ZoomTransitionPage<T> extends CustomTransitionPage<T> {
+  ZoomTransitionPage({
+    required Widget child,
+    required LocalKey key,
+  }) : super(
+          key: key,
+          child: child,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutQuart,
+                  reverseCurve: Curves.easeInQuart,
+                ),
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 500),
+        );
+}
+
