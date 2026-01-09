@@ -23,36 +23,34 @@ class GlassmorphicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final card = ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          width: width,
-          height: height,
-          padding: padding ?? const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                AppTheme.primaryPurple.withAlpha(178),
-                AppTheme.primaryPurple.withAlpha(128),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            border: showBorder
-                ? Border.all(color: Colors.white.withAlpha(51), width: 1.5)
-                : null,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(51),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
+    final card = Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: showBorder
+            ? Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.5,
+              )
+            : null,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
-          child: child,
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Padding(
+            padding: padding ?? const EdgeInsets.all(16),
+            child: child,
+          ),
         ),
       ),
     );

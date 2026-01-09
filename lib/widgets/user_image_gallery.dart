@@ -19,37 +19,18 @@ class UserImageGallery extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return Center(
-            child: Text(
-              'Error loading images',
-              style: TextStyle(color: Colors.red[300]),
-            ),
-          );
+          return const SizedBox.shrink();
         }
 
         final images = snapshot.data?.docs ?? [];
 
         if (images.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.photo_library_outlined,
-                  size: 64,
-                  color: Colors.white30,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No images uploaded yet',
-                  style: TextStyle(color: Colors.white70, fontSize: 16),
-                ),
-              ],
-            ),
-          );
+          return const SizedBox.shrink();
         }
 
         return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(8),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,

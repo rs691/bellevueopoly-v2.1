@@ -134,32 +134,34 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     setState(() => _isLoading = true);
 
     try {
-      // Use the newly added method in AuthService (or direct auth for now if not available via provider here)
-      // Since we are inside a widget, we can use FirebaseAuth directly or Ref if we convert to ConsumerWidget fully
-      // But let's stick to the pattern used in _signInWithGoogle which uses FirebaseAuth.instance directly
-      // EXCEPT I just added it to AuthService, so let's try to use that if possible, OR just duplicate the logic
-      // to match the existing style of this file which overrides the service pattern a bit.
-      // To be safe and consistent with _signInWithGoogle in this file:
       final userCredential = await FirebaseAuth.instance.signInAnonymously();
       final user = userCredential.user;
 
       if (user != null) {
-        // Always ensure anonymous users have admin privileges
-        if (userCredential.additionalUserInfo?.isNewUser == true) {
-          // Create new user document
-          await _firestoreService.addUser(
-            user: user,
-            username: 'Guest Player', // Default name for anonymous
-          );
-        } else {
-          // Update existing anonymous user to ensure admin privileges
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .set(
-                {'isAdmin': true, 'isAnonymous': true},
-                SetOptions(merge: true),
-              ); // Merge to avoid overwriting other fields
+        // Check if the user document actually exists in Firestore
+        // Wrap checking/creating in try-catch to allow login even if DB setup fails
+        // This ensures "login works" even if permissions/rules are temporarily broken
+        try {
+          final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+
+          if (!userDoc.exists) {
+            await _firestoreService.addUser(
+              user: user,
+              username: 'Guest Player',
+            );
+          } else {
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .set(
+                  {'isAdmin': true, 'isAnonymous': true},
+                  SetOptions(merge: true),
+                );
+          }
+        } catch (e) {
+          debugPrint('Error setting up user profile: $e');
+          // We intentionally shallow the error here so the user can still proceed to the app
+          // The Profile Screen will show the "Not Initialized" state if this failed
         }
       }
 

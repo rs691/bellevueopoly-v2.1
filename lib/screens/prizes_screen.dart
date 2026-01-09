@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../widgets/glassmorphic_card.dart';
 
 class PrizesScreen extends ConsumerStatefulWidget {
   const PrizesScreen({super.key});
@@ -9,149 +12,165 @@ class PrizesScreen extends ConsumerStatefulWidget {
 }
 
 class _PrizesScreenState extends ConsumerState<PrizesScreen> {
-  Future<void> _refreshPrizes() async {
-    // Since this is a static list, we'll just simulate a refresh
-    // In a real app, you'd fetch from a provider or API
-    await Future.delayed(const Duration(milliseconds: 500));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final prizes = const [
-      (
-        'Grand Prize Trip',
-        'Weekend getaway for two plus a \$250 dining credit.',
-        '12,000 pts',
-      ),
-      (
-        'Local Favorites Pack',
-        'Gift cards to top Bellevue eateries and coffee shops.',
-        '3,500 pts',
-      ),
-      (
-        'Merch Bundle',
-        'Limited-run hoodie, enamel pin set, and water bottle.',
-        '1,800 pts',
-      ),
-      (
-        'Instant Win Coupons',
-        'Pop-up discounts for check-ins this week only.',
-        '250 pts',
-      ),
-      (
-        'Surprise Drop',
-        'Flash reward that appears Fridays at noon—don’t miss it.',
-        '??',
-      ),
-    ];
-
     return Scaffold(
-      appBar: AppBar(title: const Text('Prizes')),
-      body: RefreshIndicator(
-        onRefresh: _refreshPrizes,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            Row(
-              children: const [
-                Icon(Icons.emoji_events, size: 36, color: Colors.orange),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Prizes & Rewards',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
+      backgroundColor: Colors.transparent, // Ensures global background shows through
+      appBar: AppBar(
+        title: Text(
+          'PRIZES',
+          style: GoogleFonts.luckiestGuy(
+            fontSize: 32,
+            color: Colors.white,
+            letterSpacing: 2.0,
+            shadows: [
+              const Shadow(
+                color: Colors.black45,
+                offset: Offset(2, 2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('prizes').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, size: 48, color: Colors.amber.shade300),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Access Error',
+                      style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.white),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${snapshot.error}', // Show actual error for debugging
+                      style: GoogleFonts.baloo2(fontSize: 14, color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Redeem points for the rewards below. Stock and availability change weekly, so check back often.',
-              style: TextStyle(fontSize: 15, height: 1.4),
-            ),
-            const SizedBox(height: 20),
-            ...prizes.map(
-              (prize) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              ),
+            );
+          }
+
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: Colors.amber));
+          }
+
+          final docs = snapshot.data?.docs ?? [];
+
+          if (docs.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.inventory_2_outlined,
+                    size: 64,
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade50,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.card_giftcard,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                prize.$1,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                prize.$2,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey.shade700,
-                                  height: 1.4,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.orange.shade100,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            prize.$3,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange.shade800,
-                            ),
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 16),
+                  Text(
+                    'No prizes available yet.',
+                    style: GoogleFonts.baloo2(
+                      color: Colors.white.withValues(alpha: 0.8),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Check back soon!',
+                    style: GoogleFonts.baloo2(
+                      color: Colors.white.withValues(alpha: 0.6),
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 100),
+            itemCount: docs.length,
+            itemBuilder: (context, index) {
+              final data = docs[index].data() as Map<String, dynamic>;
+              final description = data['description'] as String? ?? '';
+              // Try to find a suitable title from common field names, or use a default
+              final title = data['title'] as String? ?? 
+                           data['name'] as String? ?? 
+                           data['tier'] as String? ?? 
+                           'Prize Reward';
+              
+              return _buildPrizeCard(title, description);
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildPrizeCard(String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: GlassmorphicCard(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.amber.withValues(alpha: 0.5),
+                  width: 1,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blueGrey.shade50,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blueGrey.shade100),
+              child: Icon(
+                Icons.emoji_events_rounded,
+                color: Colors.amber.shade300,
+                size: 30,
               ),
-              child: const Text(
-                'Tip: Popular rewards sell out fast. Turn on notifications in Settings to get alerts when new prizes drop.',
-                style: TextStyle(fontSize: 14, height: 1.5),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title.toUpperCase(),
+                    style: GoogleFonts.luckiestGuy(
+                      color: Colors.white,
+                      fontSize: 18,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: GoogleFonts.baloo2(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 16,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

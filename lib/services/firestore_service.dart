@@ -17,28 +17,84 @@ class FirestoreService {
     required User user,
     required String username,
   }) async {
+    final userRef = _db.collection('users').doc(user.uid);
+    final globalStatsRef = _db.collection('globals').doc('stats');
+
     try {
-      // Check if user is anonymous (developer bypass)
       final isAnonymous = user.isAnonymous;
-      
-      await _db.collection('users').doc(user.uid).set({
-        'username': username,
-        'email': user.email,
-        'createdAt': FieldValue.serverTimestamp(),
-        'totalVisits': 0,
-        'total_points': 0,
-        'propertiesOwned': [],
-        'trophies': [],
-        'isAdmin': isAnonymous, // Anonymous users get admin access
-        'isAnonymous': isAnonymous,
+
+      await _db.runTransaction((transaction) async {
+        // 1. Generate sequential Player Number
+        DocumentSnapshot statsSnapshot = await transaction.get(globalStatsRef);
+        int nextPlayerNumber = 1;
+
+        if (statsSnapshot.exists) {
+          final data = statsSnapshot.data() as Map<String, dynamic>;
+          final currentCount = data['playerCount'] as int? ?? 0;
+          nextPlayerNumber = currentCount + 1;
+          transaction.update(globalStatsRef, {'playerCount': nextPlayerNumber});
+        } else {
+          transaction.set(globalStatsRef, {'playerCount': 1});
+        }
+
+        // 2. Create User Document with Extended Game Fields
+        transaction.set(userRef, {
+          // --- EXISTING FIELDS (Preserved) ---
+          'username': username,
+          'email': user.email,
+          'createdAt': FieldValue.serverTimestamp(),
+          'totalVisits': 0,
+          'total_points': 0,
+          'propertiesOwned': [],
+          'trophies': [],
+          'isAdmin': isAnonymous,
+          'isAnonymous': isAnonymous,
+
+          // --- NEW GAME FIELDS (Added) ---
+          'playerNumber': nextPlayerNumber, // Sequential ID
+          'cash': 1500, // Standard starting cash
+          'netWorth': 1500,
+          'currentTileIndex': 0, // Starts at GO
+          'isInJail': false,
+          'jailTurns': 0,
+          'getOutOfJailCards': 0,
+          'gamesPlayed': 0,
+          'gamesWon': 0,
+        });
       });
       
       if (isAnonymous) {
         debugPrint('✅ Anonymous user created with admin privileges');
       }
     } catch (e) {
-      debugPrint('Error adding user to Firestore: $e');
-      rethrow;
+      debugPrint('Error adding user to Firestore (Transaction failed): $e');
+      // FALLBACK: If transaction fails (e.g. permissions on 'globals'), create user without playerNumber
+      try {
+        await userRef.set({
+          'username': username,
+          'email': user.email,
+          'createdAt': FieldValue.serverTimestamp(),
+          'totalVisits': 0,
+          'total_points': 0,
+          'propertiesOwned': [],
+          'trophies': [],
+          'isAdmin': user.isAnonymous,
+          'isAnonymous': user.isAnonymous,
+          'playerNumber': 0, // Fallback ID
+          'cash': 1500,
+          'netWorth': 1500,
+          'currentTileIndex': 0,
+          'isInJail': false,
+          'jailTurns': 0,
+          'getOutOfJailCards': 0,
+          'gamesPlayed': 0,
+          'gamesWon': 0,
+        }, SetOptions(merge: true));
+        debugPrint('✅ Fallback: Created user via direct set (no sequential ID).');
+      } catch (fallbackError) {
+        debugPrint('❌ CRITICAL: Fallback user creation failed: $fallbackError');
+        rethrow;
+      }
     }
   }
 
@@ -93,6 +149,29 @@ class FirestoreService {
 
       await batch.commit();
       debugPrint("✅ Successfully uploaded ${businesses.length} businesses to Firestore!");
+
+      // --- NEW: SEED PRIZES ---
+      // Adding sample prizes to the prizes collection
+      final prizesRef = _db.collection('prizes');
+      // Clear existing prizes? No, just add some if empty
+      final prizesSnapshot = await prizesRef.limit(1).get();
+      if (prizesSnapshot.docs.isEmpty) {
+        final prizesBatch = _db.batch();
+        
+        final samplePrizes = [
+          {'description': 'Weekend getaway for two plus a \$250 dining credit.', 'tier': 'Gold'},
+          {'description': 'Gift cards to top Bellevue eateries and coffee shops.', 'tier': 'Silver'},
+          {'description': 'Limited-run hoodie, enamel pin set, and water bottle.', 'tier': 'Bronze'},
+          {'description': 'Pop-up discounts for check-ins this week only.', 'tier': 'Common'},
+          {'description': 'Flash reward that appears Fridays at noon.', 'tier': 'Secret'},
+        ];
+
+        for (var prize in samplePrizes) {
+          prizesBatch.set(prizesRef.doc(), prize);
+        }
+        await prizesBatch.commit();
+        debugPrint("✅ Successfully seeded prizes to Firestore!");
+      }
     } catch (e) {
       debugPrint("❌ Error seeding data: $e");
       rethrow;

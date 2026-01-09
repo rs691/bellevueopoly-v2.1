@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../services/storage_service.dart';
 import '../providers/user_data_provider.dart';
 
@@ -29,6 +31,8 @@ class _ProfilePictureUploaderState
   final ImagePicker _picker = ImagePicker();
   final StorageService _storageService = StorageService();
   bool _isUploading = false;
+  File? _localFile;
+  Uint8List? _localBytes;
 
   Future<void> _pickAndUploadImage() async {
     try {
@@ -42,14 +46,20 @@ class _ProfilePictureUploaderState
 
       if (image == null) return;
 
-      setState(() => _isUploading = true);
-
-      // Upload based on platform
+      // Optimistic updat: Show local image immediately
       if (kIsWeb) {
         final bytes = await image.readAsBytes();
+        setState(() {
+          _localBytes = bytes;
+          _isUploading = true;
+        });
         await _storageService.uploadProfilePicture(bytes);
       } else {
         final file = File(image.path);
+        setState(() {
+          _localFile = file;
+          _isUploading = true;
+        });
         await _storageService.uploadProfilePicture(file);
       }
 
@@ -70,6 +80,12 @@ class _ProfilePictureUploaderState
       }
     } catch (e) {
       if (mounted) {
+        // Revert local optimistic update on error
+        setState(() {
+          _localFile = null;
+          _localBytes = null;
+        });
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to upload: $e'),
@@ -90,25 +106,86 @@ class _ProfilePictureUploaderState
         ? widget.userName[0].toUpperCase()
         : 'U';
 
+    Widget buildImageContent() {
+      // 1. Show local file if available (Optimistic UI)
+      if (!kIsWeb && _localFile != null) {
+        return Image.file(
+          _localFile!,
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+        );
+      }
+      
+      // 2. Show local bytes if available (Web)
+      if (kIsWeb && _localBytes != null) {
+        return Image.memory(
+          _localBytes!,
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+        );
+      }
+
+      // 3. Show remote URL if available
+      if (widget.currentPhotoUrl != null) {
+        return CachedNetworkImage(
+          imageUrl: widget.currentPhotoUrl!,
+          width: 100,
+          height: 100,
+          fit: BoxFit.cover,
+          placeholder: (context, url) => Container(
+            color: Theme.of(context).colorScheme.primary,
+            child: const Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2,
+              ),
+            ),
+          ),
+          errorWidget: (context, url, error) {
+            // Log error to console for debugging
+            debugPrint('Error loading profile image: $error');
+            return Center(
+              child: Text(
+                initial,
+                style: const TextStyle(
+                  fontSize: 48,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            );
+          },
+        );
+      }
+
+      // 4. Fallback to initials
+      return Center(
+        child: Text(
+          initial,
+          style: const TextStyle(
+            fontSize: 48,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+
     return Stack(
       children: [
         // Profile picture circle
         CircleAvatar(
           radius: 50,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          backgroundImage: widget.currentPhotoUrl != null
-              ? NetworkImage(widget.currentPhotoUrl!)
-              : null,
-          child: widget.currentPhotoUrl == null
-              ? Text(
-                  initial,
-                  style: const TextStyle(
-                    fontSize: 48,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              : null,
+           backgroundColor: Theme.of(context).colorScheme.primary,
+           child: ClipOval(
+             child: SizedBox(
+               width: 100,
+               height: 100,
+               child: buildImageContent(),
+             ),
+           ),
         ),
 
         // Upload overlay when uploading
