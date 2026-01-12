@@ -121,7 +121,6 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     } finally {
       setState(() => _isLoading = false);
     }
-
   }
 
   // --- FEATURE 4: Show QR Codes ---
@@ -135,7 +134,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       }
 
       if (!mounted) return;
-      
+
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -161,13 +160,12 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context), 
-              child: const Text("CLOSE")
-            )
+              onPressed: () => Navigator.pop(context),
+              child: const Text("CLOSE"),
+            ),
           ],
         ),
       );
-
     } catch (e) {
       _log("❌ Error loading businesses for QR: $e");
     } finally {
@@ -204,9 +202,12 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               "Start Game -> Start Scanning",
               style: TextStyle(color: Colors.black54, fontSize: 12),
             ),
-             SelectableText(
+            SelectableText(
               "Secret: $secret",
-              style: const TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -287,7 +288,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const Text(
                 "DATA MANAGEMENT",
                 style: TextStyle(
-                  color: AppTheme.accentGreen,
+                  color: AppTheme.accentPurple,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -312,7 +313,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const Text(
                 "TESTING TOOLS",
                 style: TextStyle(
-                  color: AppTheme.accentGreen,
+                  color: AppTheme.accentOrange,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -336,7 +337,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const Text(
                 "INSPECTION",
                 style: TextStyle(
-                  color: AppTheme.accentGreen,
+                  color: AppTheme.accentPurple,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.2,
@@ -402,7 +403,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                           child: Text(
                             _statusLog,
                             style: const TextStyle(
-                              color: Colors.greenAccent,
+                              color: AppTheme.accentPurple,
                               fontFamily: 'Courier',
                               fontSize: 13,
                               height:
@@ -419,4 +420,3 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
     );
   }
 }
-

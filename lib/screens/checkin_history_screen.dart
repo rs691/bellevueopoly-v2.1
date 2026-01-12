@@ -79,18 +79,26 @@ class CheckinHistoryScreen extends StatelessWidget {
                           return ListView.separated(
                             padding: const EdgeInsets.all(12),
                             itemCount: docs.length,
-                            separatorBuilder: (_, __) => const SizedBox(height: 8),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(height: 8),
                             itemBuilder: (context, index) {
-                              final data = docs[index].data() as Map<String, dynamic>;
-                              final businessId = data['business_id'] as String? ?? 'Unknown business';
+                              final data =
+                                  docs[index].data() as Map<String, dynamic>;
+                              final businessId =
+                                  data['business_id'] as String? ??
+                                  'Unknown business';
                               final meta = metaMap[businessId];
                               final businessName = meta?.name ?? businessId;
                               final addressLine = meta?.address ?? '';
                               final imageUrl = meta?.imageUrl;
                               final category = meta?.category;
                               final points = data['points_awarded'] ?? 0;
-                              final ts = (data['scanned_at'] ?? data['timestamp']) as Timestamp?;
-                              final dateStr = ts != null ? _format(ts.toDate()) : 'Unknown time';
+                              final ts =
+                                  (data['scanned_at'] ?? data['timestamp'])
+                                      as Timestamp?;
+                              final dateStr = ts != null
+                                  ? _format(ts.toDate())
+                                  : 'Unknown time';
 
                               return TweenAnimationBuilder<double>(
                                 tween: Tween(begin: 20, end: 0),
@@ -107,9 +115,13 @@ class CheckinHistoryScreen extends StatelessWidget {
                                 },
                                 child: Card(
                                   color: Colors.white.withOpacity(0.08),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   child: ListTile(
-                                    onTap: () => context.push('${AppRoutes.stopHub}/business/$businessId'),
+                                    onTap: () => context.push(
+                                      '${AppRoutes.stopHub}/business/$businessId',
+                                    ),
                                     leading: ClipOval(
                                       child: AsyncImage(
                                         imageUrl: imageUrl,
@@ -118,36 +130,72 @@ class CheckinHistoryScreen extends StatelessWidget {
                                         fit: BoxFit.cover,
                                       ),
                                     ),
-                                    title: Text(businessName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    title: Text(
+                                      businessName,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
                                             _pill(dateStr),
                                             const SizedBox(width: 6),
-                                            if (category != null && category.isNotEmpty)
-                                              _pill(category, color: Colors.white24),
+                                            if (category != null &&
+                                                category.isNotEmpty)
+                                              _pill(
+                                                category,
+                                                color: Colors.white24,
+                                              ),
                                           ],
                                         ),
                                         if (addressLine.isNotEmpty)
                                           Padding(
-                                            padding: const EdgeInsets.only(top: 4.0),
-                                            child: Text(addressLine, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                                            padding: const EdgeInsets.only(
+                                              top: 4.0,
+                                            ),
+                                            child: Text(
+                                              addressLine,
+                                              style: const TextStyle(
+                                                color: Colors.white54,
+                                                fontSize: 12,
+                                              ),
+                                            ),
                                           ),
                                       ],
                                     ),
                                     trailing: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 8,
+                                      ),
                                       decoration: BoxDecoration(
-                                        color: AppTheme.accentGreen.withOpacity(0.2),
+                                        color: AppTheme.accentPurple
+                                            .withOpacity(0.2),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Column(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text('+$points', style: const TextStyle(color: AppTheme.accentGreen, fontWeight: FontWeight.bold, fontSize: 16)),
-                                          const Text('points', style: TextStyle(color: Colors.white70, fontSize: 11)),
+                                          Text(
+                                            '+$points',
+                                            style: const TextStyle(
+                                              color: AppTheme.accentPurple,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                          const Text(
+                                            'points',
+                                            style: TextStyle(
+                                              color: Colors.white70,
+                                              fontSize: 11,
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -169,7 +217,9 @@ class CheckinHistoryScreen extends StatelessWidget {
     );
   }
 
-  Future<Map<String, _BizMeta>> _resolveBusinessMeta(List<QueryDocumentSnapshot> docs) async {
+  Future<Map<String, _BizMeta>> _resolveBusinessMeta(
+    List<QueryDocumentSnapshot> docs,
+  ) async {
     final ids = <String>{};
     for (final doc in docs) {
       final data = doc.data() as Map<String, dynamic>;
@@ -183,7 +233,10 @@ class CheckinHistoryScreen extends StatelessWidget {
 
     // Firestore whereIn supports up to 10 items; chunk accordingly
     for (var i = 0; i < chunks.length; i += 10) {
-      final slice = chunks.sublist(i, i + 10 > chunks.length ? chunks.length : i + 10);
+      final slice = chunks.sublist(
+        i,
+        i + 10 > chunks.length ? chunks.length : i + 10,
+      );
       final snap = await FirebaseFirestore.instance
           .collection('businesses')
           .where(FieldPath.documentId, whereIn: slice)
@@ -198,17 +251,29 @@ class CheckinHistoryScreen extends StatelessWidget {
         final zip = data['zip'] as String?;
         final category = data['category'] as String?;
         final address = _formatAddress(street, city, state, zip);
-        result[doc.id] = _BizMeta(name: name, address: address, imageUrl: imageUrl, category: category);
+        result[doc.id] = _BizMeta(
+          name: name,
+          address: address,
+          imageUrl: imageUrl,
+          category: category,
+        );
       }
     }
     return result;
   }
 
-  String _formatAddress(String? street, String? city, String? state, String? zip) {
+  String _formatAddress(
+    String? street,
+    String? city,
+    String? state,
+    String? zip,
+  ) {
     final parts = [
       if (street != null && street.isNotEmpty) street,
-      [if (city != null && city.isNotEmpty) city, if (state != null && state.isNotEmpty) state]
-          .join(', '),
+      [
+        if (city != null && city.isNotEmpty) city,
+        if (state != null && state.isNotEmpty) state,
+      ].join(', '),
       if (zip != null && zip.isNotEmpty) zip,
     ];
     return parts.where((e) => e.isNotEmpty).join(' · ');
@@ -248,7 +313,14 @@ class _UserInfoCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              name,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 4),
             Text(email, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 8),
@@ -261,7 +333,10 @@ class _UserInfoCard extends StatelessWidget {
             ),
             if (lastLogin != null) ...[
               const SizedBox(height: 8),
-              Text('Last login: ${_format(lastLogin!)}', style: const TextStyle(color: Colors.white70, fontSize: 12)),
+              Text(
+                'Last login: ${_format(lastLogin!)}',
+                style: const TextStyle(color: Colors.white70, fontSize: 12),
+              ),
             ],
           ],
         ),
@@ -285,7 +360,10 @@ Widget _pill(String text, {Color? color}) {
       color: bg,
       borderRadius: BorderRadius.circular(20),
     ),
-    child: Text(text, style: const TextStyle(color: Colors.white, fontSize: 12)),
+    child: Text(
+      text,
+      style: const TextStyle(color: Colors.white, fontSize: 12),
+    ),
   );
 }
 
@@ -294,5 +372,10 @@ class _BizMeta {
   final String address;
   final String? imageUrl;
   final String? category;
-  const _BizMeta({required this.name, required this.address, this.imageUrl, this.category});
+  const _BizMeta({
+    required this.name,
+    required this.address,
+    this.imageUrl,
+    this.category,
+  });
 }

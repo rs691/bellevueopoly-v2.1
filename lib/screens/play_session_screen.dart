@@ -29,7 +29,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
         return Scaffold(
           body: QRScannerOverlay(
             onClose: () {
-               setState(() => _isScanning = false);
+              setState(() => _isScanning = false);
             },
           ),
         );
@@ -52,25 +52,25 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                         children: [
                           const Spacer(),
                           const Icon(
-                            Icons.qr_code_scanner, 
-                            size: 100, 
-                            color: AppTheme.accentGreen
+                            Icons.qr_code_scanner,
+                            size: 100,
+                            color: AppTheme.accentPurple,
                           ),
                           const SizedBox(height: 40),
                           Text(
                             'MONOPOLY GO',
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                            ),
+                            style: Theme.of(context).textTheme.displayMedium
+                                ?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w900,
+                                ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'Scan a business QR code to check in, earn points, and unlock properties!',
-                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: Colors.white70,
-                            ),
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(color: Colors.white70),
                             textAlign: TextAlign.center,
                           ),
                           const Spacer(),
@@ -79,7 +79,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                             height: 56,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppTheme.accentGreen,
+                                backgroundColor: AppTheme.accentPurple,
                                 foregroundColor: AppTheme.primaryPurple,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
@@ -87,7 +87,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                                 elevation: 8,
                               ),
                               onPressed: () {
-                                 setState(() => _isScanning = true);
+                                setState(() => _isScanning = true);
                               },
                               child: const Text(
                                 'START SCANNING',
@@ -99,6 +99,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                               ),
                             ),
                           ),
+
                           const SizedBox(height: 40),
                         ],
                       ),
@@ -106,7 +107,7 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                   ),
                 ),
               );
-            }
+            },
           ),
         ),
       );
@@ -134,19 +135,22 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text(business?.name ?? '', style: Theme.of(context).textTheme.headlineSmall),
+              Text(
+                business?.name ?? '',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
               const Spacer(),
               // The "VISIT" Action
               ElevatedButton.icon(
                 icon: const Icon(Icons.qr_code_scanner),
                 label: const Text('CHECK IN TO WIN'),
                 onPressed: () {
-                   _openModalScanner(
-                     context, 
-                     business!.id, 
-                     business.secretCode ?? 'SECRET', 
-                     business.checkInPoints ?? 100
-                   );
+                  _openModalScanner(
+                    context,
+                    business!.id,
+                    business.secretCode ?? 'SECRET',
+                    business.checkInPoints ?? 100,
+                  );
                 },
               ),
             ],
@@ -159,22 +163,29 @@ class _PlaySessionScreenState extends ConsumerState<PlaySessionScreen> {
   }
 
   // Helper for Modal Mode (used in Property Card context)
-  void _openModalScanner(BuildContext context, String? businessId, String? secret, int? points) {
+  void _openModalScanner(
+    BuildContext context,
+    String? businessId,
+    String? secret,
+    int? points,
+  ) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => SizedBox(
-         height: MediaQuery.of(context).size.height * 0.85, // Give it distinct modal feel
-         child: ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            child: QRScannerOverlay(
-              businessId: businessId,
-              correctSecret: secret,
-              pointsToAward: points,
-              // No onClose logic needed, default pop works for modal
-            ),
-         ),
+        height:
+            MediaQuery.of(context).size.height *
+            0.85, // Give it distinct modal feel
+        child: ClipRRect(
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          child: QRScannerOverlay(
+            businessId: businessId,
+            correctSecret: secret,
+            pointsToAward: points,
+            // No onClose logic needed, default pop works for modal
+          ),
+        ),
       ),
     );
   }

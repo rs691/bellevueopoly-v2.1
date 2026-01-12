@@ -12,7 +12,8 @@ class QRScannerOverlay extends StatefulWidget {
   final String? businessId;
   final String? correctSecret;
   final int? pointsToAward;
-  final VoidCallback? onClose; // Custom callback for closing (e.g. switching state)
+  final VoidCallback?
+  onClose; // Custom callback for closing (e.g. switching state)
 
   const QRScannerOverlay({
     super.key,
@@ -44,8 +45,8 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
 
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-        if (mounted) setState(() => _isProcessing = false);
-        return;
+      if (mounted) setState(() => _isProcessing = false);
+      return;
     }
 
     try {
@@ -54,7 +55,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       int points = widget.pointsToAward ?? 100;
 
       debugPrint('🔍 QR Detected: $scannedValue');
-      
+
       // ... (existing mode selection logic) ...
       // Mode A: Direct Verification (Business ID provided)
       if (widget.businessId != null && widget.correctSecret != null) {
@@ -62,7 +63,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
           throw 'Invalid QR Code for this business.';
         }
         targetBusinessId = widget.businessId!;
-      } 
+      }
       // Mode B: Generic Verification (Lookup by Secret)
       else {
         debugPrint('🔎 Looking up business by secret...');
@@ -80,7 +81,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         final data = businessDoc.data();
         targetBusinessId = businessDoc.id;
         debugPrint('✅ Found business: $targetBusinessId');
-        
+
         // Safe parsing for points
         final dynamic rawPoints = data['checkInPoints'];
         if (rawPoints is int) {
@@ -92,9 +93,9 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         }
       }
 
-      final scanRef = db.collection('scans').doc('${user.uid}_$targetBusinessId');
-
-
+      final scanRef = db
+          .collection('scans')
+          .doc('${user.uid}_$targetBusinessId');
 
       debugPrint('🔄 Checking for existing check-in...');
       // Alternative: Read-then-Write (Batch) instead of Transaction to avoid Web "converted Future" bugs
@@ -108,7 +109,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       String deviceInfo = 'Unknown Device';
       String deviceId = 'unknown';
       String platform = 'unknown';
-      
+
       try {
         // Web doesn't support Platform APIs
         if (kIsWeb) {
@@ -118,7 +119,7 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         } else {
           platform = Platform.operatingSystem;
           final deviceInfoPlugin = DeviceInfoPlugin();
-          
+
           if (Platform.isAndroid) {
             try {
               final androidInfo = await deviceInfoPlugin.androidInfo;
@@ -178,10 +179,12 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       batch.set(scanRef, {
         'user_id': user.uid,
         'scanned_by': user.email ?? user.displayName ?? 'Unknown User',
-        'scanned_by_username': user.displayName ?? user.email?.split('@')[0] ?? 'Unknown',
+        'scanned_by_username':
+            user.displayName ?? user.email?.split('@')[0] ?? 'Unknown',
         'business_id': targetBusinessId,
         'scanned_at': FieldValue.serverTimestamp(),
-        'timestamp': FieldValue.serverTimestamp(), // Keep for backward compatibility
+        'timestamp':
+            FieldValue.serverTimestamp(), // Keep for backward compatibility
         'points_awarded': points,
         'device_info': deviceInfo,
         'device_id': deviceId,
@@ -202,9 +205,9 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       debugPrint('✅ Batch committed successfully.');
 
       // Log Analytics
-      final String businessName = widget.businessId != null 
-          ? 'Business (${widget.businessId})' 
-          : 'Business ($targetBusinessId)'; 
+      final String businessName = widget.businessId != null
+          ? 'Business (${widget.businessId})'
+          : 'Business ($targetBusinessId)';
 
       try {
         debugPrint('📊 Logging Analytics...');
@@ -223,9 +226,9 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       debugPrint('❌ Scan Error: $e\n$stack'); // Logic to print detailed error
       // Check if it's that specific "converted Future" error
       if (e.toString().contains('converted Future')) {
-         if (mounted) _showErrorUI('Network/Database Error. Please try again.');
+        if (mounted) _showErrorUI('Network/Database Error. Please try again.');
       } else {
-         if (mounted) _showErrorUI('Error: ${e.toString()}');
+        if (mounted) _showErrorUI('Error: ${e.toString()}');
       }
     } finally {
       // If we didn't succeed (error was thrown), we might want to resume scanning
@@ -240,46 +243,58 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppTheme.primaryPurple.withValues(alpha: 0.9),
-        title: const Icon(Icons.stars, color: AppTheme.accentGreen, size: 64),
+        title: const Icon(Icons.stars, color: AppTheme.accentPurple, size: 64),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text(
-              'CHECK-IN SUCCESSFUL!', 
+              'CHECK-IN SUCCESSFUL!',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
             Text(
-              '+$points POINTS', 
-              style: const TextStyle(color: AppTheme.accentGreen, fontSize: 24, fontWeight: FontWeight.bold)
+              '+$points POINTS',
+              style: const TextStyle(
+                color: AppTheme.accentPurple,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () {
-               Navigator.of(ctx).pop(); // Close Dialog using its own context
-               _closeScanner();
-            }, 
-            child: const Text('BACK TO BOARD', style: TextStyle(color: Colors.white))
-          )
+              Navigator.of(ctx).pop(); // Close Dialog using its own context
+              _closeScanner();
+            },
+            child: const Text(
+              'BACK TO BOARD',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         ],
       ),
     );
   }
 
   void _showErrorUI(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         content: Text(message),
         backgroundColor: Colors.redAccent,
         duration: const Duration(seconds: 2),
-    ));
-    
+      ),
+    );
+
     Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) {
-           setState(() => _isProcessing = false);
-        }
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     });
   }
 
@@ -312,28 +327,29 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
         // 2. Dark Overlay with Cutout
         ColorFiltered(
           colorFilter: ColorFilter.mode(
-            Colors.black.withOpacity(0.5), 
-            BlendMode.srcOut // Key: Cuts out the destination (the Container below)
+            Colors.black.withOpacity(0.5),
+            BlendMode
+                .srcOut, // Key: Cuts out the destination (the Container below)
           ),
           child: Stack(
             fit: StackFit.expand,
             children: [
-               Container(
-                 decoration: const BoxDecoration(
-                   color: Colors.black,
-                   backgroundBlendMode: BlendMode.dstOut,
-                 ),
-               ),
-               Center(
-                 child: Container(
-                   width: scanWindowSize,
-                   height: scanWindowSize,
-                   decoration: BoxDecoration(
-                     color: Colors.white,
-                     borderRadius: BorderRadius.circular(20),
-                   ),
-                 ),
-               ),
+              Container(
+                decoration: const BoxDecoration(
+                  color: Colors.black,
+                  backgroundBlendMode: BlendMode.dstOut,
+                ),
+              ),
+              Center(
+                child: Container(
+                  width: scanWindowSize,
+                  height: scanWindowSize,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -344,15 +360,15 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
             width: scanWindowSize,
             height: scanWindowSize,
             decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.accentGreen, width: 3),
+              border: Border.all(color: AppTheme.accentPurple, width: 3),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Center(
               child: Icon(
-                Icons.qr_code_scanner, 
-                color: Colors.white24, 
-                size: 100
-              )
+                Icons.qr_code_scanner,
+                color: Colors.white24,
+                size: 100,
+              ),
             ),
           ),
         ),
@@ -370,13 +386,16 @@ class _QRScannerOverlayState extends State<QRScannerOverlay> {
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  shadows: [Shadow(color: Colors.black, blurRadius: 4)]
+                  shadows: [Shadow(color: Colors.black, blurRadius: 4)],
                 ),
               ),
               SizedBox(height: 8),
               Text(
                 'Align the QR code within the frame',
-                style: TextStyle(color: Colors.white70, shadows: [Shadow(color: Colors.black, blurRadius: 4)]),
+                style: TextStyle(
+                  color: Colors.white70,
+                  shadows: [Shadow(color: Colors.black, blurRadius: 4)],
+                ),
               ),
             ],
           ),

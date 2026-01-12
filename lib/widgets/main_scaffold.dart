@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import '../router/app_router.dart';
 import '../theme/app_theme.dart';
+import 'chatbot_tutorial.dart';
 
 class MainScaffold extends StatefulWidget {
   final Widget child;
@@ -35,19 +36,20 @@ class _MainScaffoldState extends State<MainScaffold> {
     final currentIndex = _calculateCurrentIndex(context);
     // We only show the nav bar if we are NOT on the home screen (per existing logic)
     // OR the user wants it everywhere. The prompt implies "From the home screen...",
-    // but usually the home screen has its own big navigation. 
-    // The previous code hid it on home. I will keep it hidden on home for now 
+    // but usually the home screen has its own big navigation.
+    // The previous code hid it on home. I will keep it hidden on home for now
     // unless the user specifically asked to change that behavior.
-    // Wait, the prompt says "From the home screen, there are 5 nav boxes...". 
+    // Wait, the prompt says "From the home screen, there are 5 nav boxes...".
     // That describes the *content* of the home screen.
     // The navbar is usually for navigating *away* or *between* these.
     // I'll stick to: Show navbar only if NOT home screen.
-    
-    final isHomeScreen = currentIndex == 0 && GoRouterState.of(context).matchedLocation == '/';
+
+    final isHomeScreen =
+        currentIndex == 0 && GoRouterState.of(context).matchedLocation == '/';
     // Fix: Ensure we don't pass null to floatingActionButton if it expects a widget, or check if Scaffold allows null.
     // Scaffold allows null.
     // However, AnimatedBottomNavigationBar expects activeIndex to be valid.
-    
+
     return GestureDetector(
       onHorizontalDragStart: (details) {
         _startPosition = details.globalPosition;
@@ -84,17 +86,20 @@ class _MainScaffoldState extends State<MainScaffold> {
               ),
             ),
             widget.child,
+            const ChatbotTutorial(),
           ],
         ),
         floatingActionButton: isHomeScreen
             ? null
             : FloatingActionButton(
-                onPressed: () => context.push(AppRoutes.game),
-                backgroundColor: AppTheme.accentGreen,
+                mini: true,
+                backgroundColor: AppTheme.accentPurple,
+                foregroundColor: Colors.black,
                 shape: const CircleBorder(),
-                child: const Icon(Icons.casino, size: 30, color: Colors.black),
-                // params
+                onPressed: () => context.push(AppRoutes.game),
+                child: const Icon(Icons.casino, size: 30),
               ),
+
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
         bottomNavigationBar: isHomeScreen
             ? null
@@ -106,8 +111,10 @@ class _MainScaffoldState extends State<MainScaffold> {
                 leftCornerRadius: 32,
                 rightCornerRadius: 32,
                 onTap: (index) => _onItemTapped(index, context),
-                backgroundColor: Colors.black.withValues(alpha: 0.6), // Glassy look
-                activeColor: AppTheme.accentGreen,
+                backgroundColor: Colors.black.withValues(
+                  alpha: 0.6,
+                ), // Glassy look
+                activeColor: AppTheme.accentPurple,
                 inactiveColor: Colors.white60,
                 iconSize: 28,
               ),
@@ -117,7 +124,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   void _handleSwipe(BuildContext context) {
     // Swipe logic requires knowing the current index conceptually
-    // home=0, stops=1, prizes=2, nearMe=3. 
+    // home=0, stops=1, prizes=2, nearMe=3.
     // Use similar logic but ensure we don't swipe off valid ranges.
     final currentIndex = _calculateCurrentIndex(context);
     final screenWidth = MediaQuery.of(context).size.width;
@@ -148,14 +155,14 @@ class _MainScaffoldState extends State<MainScaffold> {
     // Tab 0: HOME -> /
     if (location == '/') {
       return 0;
-    // Tab 1: STOPS -> /stop-hub
+      // Tab 1: STOPS -> /stop-hub
     } else if (location.startsWith('/stop-hub')) {
       return 1;
-    // Tab 2: PRIZES -> /prizes
+      // Tab 2: PRIZES -> /prizes
     } else if (location.startsWith('/prizes') ||
         location.startsWith('/rules-and-prizes')) {
       return 2;
-    // Tab 3: NEAR ME -> /near-me
+      // Tab 3: NEAR ME -> /near-me
     } else if (location.startsWith('/near-me')) {
       return 3;
     }

@@ -6,6 +6,7 @@ import '../providers/business_provider.dart';
 import '../providers/game_state_provider.dart';
 import '../models/business_model.dart';
 import 'qr_scanner_overlay.dart';
+import '../theme/app_theme.dart';
 
 class MonopolyBoardScreen extends ConsumerStatefulWidget {
   const MonopolyBoardScreen({super.key});
@@ -172,9 +173,10 @@ class _MonopolyBoardScreenState extends ConsumerState<MonopolyBoardScreen> {
         decoration: BoxDecoration(
           color: isVisited ? Colors.green[100] : Colors.white,
           border: Border.all(
-            color: isVisited ? Colors.green : Colors.blueAccent,
+            color: isVisited ? Colors.green : AppTheme.accentPurple,
             width: 2,
           ),
+
           borderRadius: BorderRadius.circular(4),
           boxShadow: [
             BoxShadow(
@@ -305,9 +307,10 @@ class _MonopolyBoardScreenState extends ConsumerState<MonopolyBoardScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: AppTheme.accentPurple,
                       borderRadius: BorderRadius.circular(8),
                     ),
+
                     child: Text(
                       '${business.checkInPoints ?? 100} pts',
                       style: const TextStyle(
@@ -371,7 +374,9 @@ class _MonopolyBoardScreenState extends ConsumerState<MonopolyBoardScreen> {
                 label: Text(isVisited ? 'Already Visited ✓' : 'Scan QR Code'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  backgroundColor: isVisited ? Colors.grey : Colors.blueAccent,
+                  backgroundColor: isVisited
+                      ? Colors.grey
+                      : AppTheme.accentPurple,
                   disabledBackgroundColor: Colors.grey[300],
                 ),
               ),

@@ -7,6 +7,7 @@ import '../widgets/glassmorphic_card.dart';
 import '../widgets/gradient_background.dart';
 import '../widgets/responsive_form_container.dart';
 import '../widgets/logout_confirmation_dialog.dart';
+import '../theme/app_theme.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   final String email;
@@ -329,8 +330,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                               ? null
                               : _checkEmailVerification,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.purple,
+                            backgroundColor: AppTheme.accentPurple,
                             padding: const EdgeInsets.symmetric(vertical: 16),
+
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),

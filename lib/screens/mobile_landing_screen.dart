@@ -13,75 +13,66 @@ class MobileLandingScreen extends ConsumerStatefulWidget {
   const MobileLandingScreen({super.key});
 
   @override
-  ConsumerState<MobileLandingScreen> createState() => _MobileLandingScreenState();
+  ConsumerState<MobileLandingScreen> createState() =>
+      _MobileLandingScreenState();
 }
 
 class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
   late Timer _timer;
   late DateTime _endTime;
-  int _days = 7;
+  int _days = 0;
   int _hours = 0;
   int _minutes = 0;
-  String? _randomBusinessName;
+  int _seconds = 0;
 
   @override
   void initState() {
     super.initState();
-    // Set end time to 1 week from now
-    _endTime = DateTime.now().add(const Duration(days: 7));
+    _calculateNextEndTime();
     _updateCountdown();
-    
+
     // Update countdown every second
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       _updateCountdown();
     });
-    
-    // Fetch random business
-    _fetchRandomBusiness();
+  }
+
+  void _calculateNextEndTime() {
+    final now = DateTime.now();
+    // Target: Next Monday at 23:59:59
+    // Monday is weekday 1.
+    int daysUntilMonday = (DateTime.monday - now.weekday + 7) % 7;
+    // If it's already Monday, we want NEXT Monday unless it's before 11:59 PM?
+    // User said "Sunday night 12:01 to Monday 1159".
+    // Let's assume the cycle ends every Monday at midnight.
+    if (daysUntilMonday == 0 && now.hour >= 23 && now.minute >= 59) {
+      daysUntilMonday = 7;
+    }
+
+    _endTime = DateTime(
+      now.year,
+      now.month,
+      now.day + daysUntilMonday,
+      23,
+      59,
+      59,
+    );
   }
 
   void _updateCountdown() {
     final now = DateTime.now();
+    if (now.isAfter(_endTime)) {
+      _calculateNextEndTime();
+    }
+
     final remaining = _endTime.difference(now);
-    
-    if (remaining.isNegative) {
-      _days = 0;
-      _hours = 0;
-      _minutes = 0;
-    } else {
+
+    setState(() {
       _days = remaining.inDays;
       _hours = remaining.inHours % 24;
       _minutes = remaining.inMinutes % 60;
-    }
-    
-    if (mounted) {
-      setState(() {});
-    }
-  }
-
-  Future<void> _fetchRandomBusiness() async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('businesses')
-          .get();
-      
-      if (snapshot.docs.isNotEmpty) {
-        final randomDoc = snapshot.docs[math.Random().nextInt(snapshot.docs.length)];
-        final businessName = randomDoc['name'] as String?;
-        
-        if (mounted) {
-          setState(() {
-            _randomBusinessName = businessName ?? 'Bellevue';
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _randomBusinessName = 'Bellevue';
-        });
-      }
-    }
+      _seconds = remaining.inSeconds % 60;
+    });
   }
 
   @override
@@ -96,34 +87,46 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
 
     // Helper function to build countdown timer
     Widget buildCountdownTimer() {
-      return Text(
-        '$_days Days ${_hours.toString().padLeft(2, '0')}h ${_minutes.toString().padLeft(2, '0')}m',
-        style: GoogleFonts.baloo2(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-          shadows: const [
-            Shadow(
-              color: Colors.black26,
-              offset: Offset(0, 1),
-              blurRadius: 2,
+      return Column(
+        children: [
+          Text(
+            'Next Prize Drawing In:',
+            style: GoogleFonts.baloo2(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.white70,
             ),
-          ],
-        ),
+          ),
+          Text(
+            '${_days}d ${_hours.toString().padLeft(2, '0')}h ${_minutes.toString().padLeft(2, '0')}m ${_seconds.toString().padLeft(2, '0')}s',
+            style: GoogleFonts.baloo2(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              letterSpacing: 1.2,
+              shadows: const [
+                Shadow(
+                  color: Colors.black45,
+                  offset: Offset(0, 2),
+                  blurRadius: 4,
+                ),
+              ],
+            ),
+          ),
+        ],
       );
     }
 
     // Helper function to build footer
     Widget buildFooter() {
-      final businessName = _randomBusinessName ?? 'Bellevue';
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '$businessName Opoly',
+            'Chamber Opoly',
             style: GoogleFonts.baloo2(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
               shadows: const [
                 Shadow(
@@ -135,9 +138,9 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
             ),
           ),
           Text(
-            'is brought to you by',
+            'is brought to you by Business name',
             style: GoogleFonts.baloo2(
-              fontSize: 12,
+              fontSize: 14,
               fontWeight: FontWeight.w500,
               color: Colors.white.withOpacity(0.9),
               shadows: const [
@@ -215,7 +218,8 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
         ),
         centerTitle: true,
         automaticallyImplyLeading: false, // Prevents back button on home
-        toolbarHeight: 80, // Increased height to center between top and nav boxes
+        toolbarHeight:
+            80, // Increased height to center between top and nav boxes
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -355,9 +359,7 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
                 borderRadius: BorderRadius.circular(24),
                 splashColor: Colors.white.withOpacity(0.3),
                 highlightColor: Colors.white.withOpacity(0.15),
-                child: Center(
-                  child: _buildTileContent(item, tileSize),
-                ),
+                child: Center(child: _buildTileContent(item, tileSize)),
               ),
             ),
           ),
@@ -368,7 +370,7 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
 
   Widget _buildTileContent(_PentagonItem item, double tileSize) {
     final words = item.label.split(' ');
-    
+
     if (words.length > 1) {
       // Multi-word: text above, icon center, text below
       return Column(
@@ -472,6 +474,7 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
     }
   }
 }
+
 class _PentagonItem {
   final IconData icon;
   final String label;
@@ -479,4 +482,3 @@ class _PentagonItem {
 
   _PentagonItem(this.icon, this.label, this.onTap);
 }
-

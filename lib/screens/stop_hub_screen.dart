@@ -40,13 +40,10 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
         elevation: 0,
         title: Text(
           'Stop Hub',
-          style: GoogleFonts.baloo2(
-            fontSize: 38,
-            fontWeight: FontWeight.w600,
-          ),
+          style: GoogleFonts.baloo2(fontSize: 38, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
-        automaticallyImplyLeading: false, 
+        automaticallyImplyLeading: false,
         toolbarHeight: 80,
       ),
       body: LayoutBuilder(
@@ -56,7 +53,7 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
           final minSide = width < height ? width : height;
           // Tile size optimized for mobile touch targets
           // slightly smaller than home screen (0.26) to accommodate 7 items
-          final tileSize = (minSide * 0.22).clamp(100.0, 180.0); 
+          final tileSize = (minSide * 0.22).clamp(100.0, 180.0);
           final radius = (minSide * 0.34);
           final centerX = width / 2;
           // Account for bottom navbar by centering in available space
@@ -180,9 +177,7 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
                 borderRadius: BorderRadius.circular(24),
                 splashColor: Colors.white.withOpacity(0.3),
                 highlightColor: Colors.white.withOpacity(0.15),
-                child: Center(
-                  child: _buildTileContent(item, tileSize),
-                ),
+                child: Center(child: _buildTileContent(item, tileSize)),
               ),
             ),
           ),
@@ -193,7 +188,7 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
 
   Widget _buildTileContent(_PentagonItem item, double tileSize) {
     final words = item.label.split(' ');
-    
+
     if (words.length > 1) {
       // Multi-word: text above, icon center, text below
       return Column(
@@ -218,8 +213,8 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
                   ),
                 ],
               ),
-               maxLines: 1,
-               overflow: TextOverflow.visible,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
             ),
           ),
           SizedBox(height: tileSize * 0.04),

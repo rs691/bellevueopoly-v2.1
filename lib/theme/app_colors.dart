@@ -7,7 +7,7 @@ class AppColors {
   static const Color primaryPurple = Color(0xFF9C27B0);
 
   // Secondary colors
-  static const Color accentGreen = Color(0xFF4CAF50);
+  static const Color accentPurple = Color(0xFF752673);
   static const Color accentOrange = Color(0xFFFF9800);
   static const Color accentRed = Color(0xFFF44336);
 
@@ -41,7 +41,7 @@ class AppColors {
   static const LinearGradient gradientSuccess = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [accentGreen, Color(0xFF43A047)],
+    colors: [accentPurple, Color(0xFF3C0F70)],
   );
 
   static const LinearGradient gradientWarning = LinearGradient(
