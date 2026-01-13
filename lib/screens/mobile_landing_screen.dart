@@ -24,12 +24,14 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
   int _hours = 0;
   int _minutes = 0;
   int _seconds = 0;
+  String? _randomBusinessName;
 
   @override
   void initState() {
     super.initState();
     _calculateNextEndTime();
     _updateCountdown();
+    _fetchRandomBusinessName();
 
     // Update countdown every second
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -73,6 +75,24 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
       _minutes = remaining.inMinutes % 60;
       _seconds = remaining.inSeconds % 60;
     });
+  }
+
+  Future<void> _fetchRandomBusinessName() async {
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('businesses')
+          .get();
+      if (querySnapshot.docs.isNotEmpty) {
+        final random = math.Random();
+        final randomIndex = random.nextInt(querySnapshot.docs.length);
+        final businessData = querySnapshot.docs[randomIndex].data();
+        setState(() {
+          _randomBusinessName = businessData['name'] as String?;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching random business name: $e');
+    }
   }
 
   @override
@@ -123,7 +143,7 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            'Chamber Opoly',
+            'ChamberOpoly',
             style: GoogleFonts.baloo2(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -138,7 +158,9 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
             ),
           ),
           Text(
-            'is brought to you by Business name',
+            _randomBusinessName != null
+                ? 'is brought to you by $_randomBusinessName'
+                : 'is brought to you by Chamber of Commerce',
             style: GoogleFonts.baloo2(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -226,14 +248,15 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final minSide = width < height ? width : height;
-          // Tile size optimized for mobile touch targets (min 48px tap area)
-          final tileSize = (minSide * 0.26).clamp(120.0, 200.0);
-          final radius = (minSide * 0.34);
+          // Tile size standardized to 0.22 to match StopHubScreen
+          final tileSize = (minSide * 0.22).clamp(100.0, 180.0);
+          final radius = (minSide * 0.32);
           final centerX = width / 2;
           // Account for bottom navbar by centering in available space
           final navbarHeight = 72 + 32; // navbar height + margins
           final availableHeight = height - navbarHeight;
-          final centerY = availableHeight / 2;
+          // Shift center down slightly to avoid overlap with large title text
+          final centerY = (availableHeight / 2) + 20;
 
           List<_PentagonItem> items = [
             _PentagonItem(

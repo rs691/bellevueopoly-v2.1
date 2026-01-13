@@ -21,15 +21,48 @@ class QrScan extends Equatable {
   });
 
   factory QrScan.fromFirestore(DocumentSnapshot doc) {
-    final data = doc.data() as Map<String, dynamic>;
+    final data = doc.data() as Map<String, dynamic>? ?? {};
+
+    // Handle scannedAt robustly
+    DateTime scannedAtDate;
+    final dynamic rawScannedAt =
+        data['scannedAt'] ?? data['scanned_at'] ?? data['timestamp'];
+    if (rawScannedAt is Timestamp) {
+      scannedAtDate = rawScannedAt.toDate();
+    } else if (rawScannedAt is String) {
+      scannedAtDate = DateTime.tryParse(rawScannedAt) ?? DateTime.now();
+    } else {
+      scannedAtDate = DateTime.now();
+    }
+
+    // Handle pointsEarned robustly
+    int points;
+    final dynamic rawPoints =
+        data['pointsEarned'] ??
+        data['points_awarded'] ??
+        data['points_earned'] ??
+        0;
+    if (rawPoints is int) {
+      points = rawPoints;
+    } else if (rawPoints is double) {
+      points = rawPoints.toInt();
+    } else if (rawPoints is String) {
+      points = int.tryParse(rawPoints) ?? 0;
+    } else {
+      points = 0;
+    }
+
     return QrScan(
       id: doc.id,
-      playerId: data['playerId'] ?? '',
-      businessId: data['businessId'] ?? '',
-      businessName: data['businessName'] ?? 'Unknown Business',
-      pointsEarned: data['pointsEarned'] ?? 0,
-      scannedAt: (data['scannedAt'] as Timestamp).toDate(),
-      notes: data['notes'],
+      playerId: (data['playerId'] ?? data['player_id'] ?? data['user_id'] ?? '')
+          .toString(),
+      businessId: (data['businessId'] ?? data['business_id'] ?? '').toString(),
+      businessName:
+          (data['businessName'] ?? data['business_name'] ?? 'Unknown Business')
+              .toString(),
+      pointsEarned: points,
+      scannedAt: scannedAtDate,
+      notes: data['notes']?.toString(),
     );
   }
 

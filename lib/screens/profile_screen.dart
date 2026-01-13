@@ -12,6 +12,7 @@ import '../widgets/stat_card.dart';
 import '../widgets/logout_confirmation_dialog.dart';
 import '../router/app_router.dart';
 import '../widgets/glassmorphic_card.dart';
+import '../providers/chatbot_settings_provider.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -36,7 +37,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         title: Text(
           'My Account',
           style: GoogleFonts.baloo2(
-            fontSize: 28, 
+            fontSize: 28,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
@@ -53,8 +54,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         ],
       ),
       body: userData.when(
-        loading: () => const Center(child: CircularProgressIndicator(color: Colors.white)),
-        error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.white))),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
+        error: (err, stack) => Center(
+          child: Text(
+            'Error: $err',
+            style: const TextStyle(color: Colors.white),
+          ),
+        ),
         data: (userDoc) {
           // If the profile doesn't exist yet (e.g. data latency, permission error, or not created),
           // fallback to display data so the UI renders immediately.
@@ -63,31 +70,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (userDoc != null && userDoc.exists) {
             user = userDoc.data() as Map<String, dynamic>;
           } else {
-             // Fallback/Guest Data
-             final currentUser = FirebaseAuth.instance.currentUser;
-             user = {
-               'username': currentUser?.displayName ?? 'Guest Player',
-               'email': currentUser?.email ?? 'No Email',
-               'photoURL': currentUser?.photoURL,
-               'points': 0,
-               'checkIns': 0, 
-               'isAdmin': false,
-             };
+            // Fallback/Guest Data
+            final currentUser = FirebaseAuth.instance.currentUser;
+            user = {
+              'username': currentUser?.displayName ?? 'Guest Player',
+              'email': currentUser?.email ?? 'No Email',
+              'photoURL': currentUser?.photoURL,
+              'points': 0,
+              'checkIns': 0,
+              'isAdmin': false,
+            };
           }
-          
+
           return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 24.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // 1. Header (Profile Pic, Name, Email)
                 _buildProfileHeader(context, user),
                 const SizedBox(height: 16),
-                
+
                 // 2. Stats Grid
                 _buildStatsGrid(user),
                 const SizedBox(height: 16),
-                
+
                 // 3. Account Settings Section
                 _buildSectionTitle('ACCOUNT SETTINGS'),
                 GlassmorphicCard(
@@ -97,23 +107,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       _buildListTile(
                         icon: Icons.edit,
                         title: 'Edit Profile',
-                        onTap: () {
-                          // TODO: Navigate to Edit Profile
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Edit Profile coming soon')),
-                          );
-                        },
+                        onTap: () => context.push(AppRoutes.editProfile),
                       ),
                       _buildDivider(),
                       _buildListTile(
                         icon: Icons.lock_outline,
                         title: 'Change Password',
-                        onTap: () {
-                          // TODO: Navigate to Change Password
-                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Change Password coming soon')),
-                          );
-                        },
+                        onTap: () => context.push(AppRoutes.changePassword),
                       ),
                     ],
                   ),
@@ -130,7 +130,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         icon: Icons.notifications_outlined,
                         title: 'Push Notifications',
                         value: _pushNotifications,
-                        onChanged: (val) => setState(() => _pushNotifications = val),
+                        onChanged: (val) =>
+                            setState(() => _pushNotifications = val),
                       ),
                       _buildDivider(),
                       _buildSwitchTile(
@@ -138,6 +139,15 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         title: 'Email Updates',
                         value: _emailUpdates,
                         onChanged: (val) => setState(() => _emailUpdates = val),
+                      ),
+                      _buildDivider(),
+                      _buildSwitchTile(
+                        icon: Icons.smart_toy_outlined,
+                        title: 'Enable Chatbot',
+                        value: ref.watch(chatbotSettingsProvider),
+                        onChanged: (val) => ref
+                            .read(chatbotSettingsProvider.notifier)
+                            .toggle(val),
                       ),
                     ],
                   ),
@@ -150,20 +160,23 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                       _buildListTile(
+                      _buildListTile(
                         icon: Icons.history,
                         title: 'Check-in History',
                         onTap: () => context.push(AppRoutes.checkinHistory),
                       ),
                       _buildDivider(),
-                       _buildListTile(
+                      _buildListTile(
                         icon: Icons.qr_code_2,
                         title: 'QR Scan History',
                         onTap: () {
-                           final userId = auth.currentUser?.uid;
-                           if (userId != null) {
-                             context.push(AppRoutes.qrScanHistory, extra: userId);
-                           }
+                          final userId = auth.currentUser?.uid;
+                          if (userId != null) {
+                            context.push(
+                              AppRoutes.qrScanHistory,
+                              extra: userId,
+                            );
+                          }
                         },
                       ),
                     ],
@@ -177,19 +190,26 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     _buildSectionTitle('MY IMAGES'),
                     TextButton.icon(
-                        onPressed: () => context.push(AppRoutes.upload),
-                        icon: const Icon(Icons.add_a_photo, size: 16, color: Colors.blueAccent),
-                        label: const Text('Upload', style: TextStyle(color: Colors.blueAccent)),
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(60, 30),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
+                      onPressed: () => context.push(AppRoutes.upload),
+                      icon: const Icon(
+                        Icons.add_a_photo,
+                        size: 16,
+                        color: Colors.blueAccent,
+                      ),
+                      label: const Text(
+                        'Upload',
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(60, 30),
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                     ),
                   ],
                 ),
                 // const SizedBox(height: 8), // Removed extra space
-                UserImageGallery(), 
+                UserImageGallery(),
                 const SizedBox(height: 16),
 
                 // 7. Support & Info
@@ -198,19 +218,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   padding: EdgeInsets.zero,
                   child: Column(
                     children: [
-                       _buildListTile(
+                      _buildListTile(
                         icon: Icons.menu_book_outlined,
                         title: 'How to Play',
                         onTap: () => context.push(AppRoutes.instructions),
                       ),
                       _buildDivider(),
-                       _buildListTile(
+                      _buildListTile(
                         icon: Icons.privacy_tip_outlined,
                         title: 'Privacy Policy',
                         onTap: () {}, // TODO
                       ),
                       _buildDivider(),
-                       _buildListTile(
+                      _buildListTile(
                         icon: Icons.gavel_outlined,
                         title: 'Terms of Service',
                         onTap: () => context.push(AppRoutes.terms),
@@ -221,33 +241,33 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const SizedBox(height: 16),
 
                 // 8. Danger Zone
-                 GlassmorphicCard(
+                GlassmorphicCard(
                   padding: EdgeInsets.zero,
-                   child: Column(
-                     children: [
-                        _buildListTile(
+                  child: Column(
+                    children: [
+                      _buildListTile(
                         icon: Icons.delete_forever_outlined,
                         title: 'Delete Account',
                         color: Colors.redAccent,
                         isDestructive: true,
                         onTap: () => _handleDeleteAccount(context),
                       ),
-                     ],
-                   )
-                 ),
+                    ],
+                  ),
+                ),
 
-                 // Admin Link (Conditional)
+                // Admin Link (Conditional)
                 if (user['isAdmin'] == true) ...[
                   const SizedBox(height: 16),
-                   GlassmorphicCard(
-                     padding: EdgeInsets.zero,
-                     child: _buildListTile(
-                       icon: Icons.admin_panel_settings,
-                       title: 'Admin Console',
-                       color: Colors.amber,
-                       onTap: () => context.push(AppRoutes.admin),
-                     ),
-                   ),
+                  GlassmorphicCard(
+                    padding: EdgeInsets.zero,
+                    child: _buildListTile(
+                      icon: Icons.admin_panel_settings,
+                      title: 'Admin Console',
+                      color: Colors.amber,
+                      onTap: () => context.push(AppRoutes.admin),
+                    ),
+                  ),
                 ],
 
                 const SizedBox(height: 32),
@@ -263,7 +283,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     // Check if we need to show upload prompt (if no photo)
     // Handle inconsistent casing from Firestore (photoURL vs photoUrl)
     final String? photoUrl = (user['photoURL'] ?? user['photoUrl']) as String?;
-    
+
     return Column(
       children: [
         Center(
@@ -292,17 +312,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const SizedBox(height: 4),
         Text(
           user['email'] ?? 'No Email',
-          style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
         ),
       ],
     );
   }
 
   Widget _buildStatsGrid(Map<String, dynamic> user) {
-     return GridView.count(
+    return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
@@ -350,15 +367,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(
-        title,
-        style: TextStyle(color: color, fontSize: 16),
-      ),
+      title: Text(title, style: TextStyle(color: color, fontSize: 16)),
       trailing: Icon(Icons.chevron_right, color: color.withOpacity(0.5)),
       onTap: onTap,
     );
   }
-  
+
   Widget _buildSwitchTile({
     required IconData icon,
     required String title,
@@ -368,8 +382,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return SwitchListTile(
       secondary: Icon(icon, color: Colors.white),
       title: Text(
-         title,
-         style: const TextStyle(color: Colors.white, fontSize: 16),
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
       value: value,
       onChanged: onChanged,
@@ -387,13 +401,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-    Future<void> _handleDeleteAccount(BuildContext context) async {
+  Future<void> _handleDeleteAccount(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Account'),
         content: const Text(
-            'Are you sure you want to delete your account? This action cannot be undone.'),
+          'Are you sure you want to delete your account? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -409,10 +424,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
 
     if (confirmed == true && context.mounted) {
-       // Perform delete logic here
-       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account deletion logic would run here.')),
-       );
+      // Perform delete logic here
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account deletion logic would run here.')),
+      );
     }
   }
 }

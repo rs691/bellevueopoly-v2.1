@@ -121,7 +121,6 @@ flutter:
     - assets/background3.png
     - assets/textFace.png
     - assets/chatbot_icon.png
-    - assets/assets/images/no_image_available.png
 flutter_native_splash:
   color: "#000000"
   image: assets/splash.png

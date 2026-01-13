@@ -15,6 +15,7 @@ class GradientBackground extends StatelessWidget {
           colors: [
             Color(0xFF2d1b4e),
             Color(0xFF1a0d33),
+            Color.fromARGB(0, 126, 58, 214),
           ],
         ),
       ),

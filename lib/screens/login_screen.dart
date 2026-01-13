@@ -142,7 +142,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         // Wrap checking/creating in try-catch to allow login even if DB setup fails
         // This ensures "login works" even if permissions/rules are temporarily broken
         try {
-          final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
 
           if (!userDoc.exists) {
             await _firestoreService.addUser(
@@ -153,10 +156,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(user.uid)
-                .set(
-                  {'isAdmin': true, 'isAnonymous': true},
-                  SetOptions(merge: true),
-                );
+                .set({
+                  'isAdmin': true,
+                  'isAnonymous': true,
+                }, SetOptions(merge: true));
           }
         } catch (e) {
           debugPrint('Error setting up user profile: $e');
@@ -297,6 +300,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       TextFormField(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                         decoration: const InputDecoration(
                                           labelText: 'EMAIL ADDRESS',
                                         ),
@@ -312,6 +318,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                       ),
                                       const SizedBox(height: 16),
                                       TextFormField(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                         decoration: const InputDecoration(
                                           labelText: 'PASSWORD',
                                         ),

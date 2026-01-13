@@ -43,6 +43,8 @@ import '../screens/stop_hub_categories/giving_partners_screen.dart';
 import '../screens/stop_hub_categories/community_chest_screen.dart';
 import '../screens/stop_hub_categories/wild_cards_screen.dart';
 import '../screens/stop_hub_categories/fun_house_screen.dart';
+import '../screens/edit_profile_screen.dart';
+import '../screens/change_password_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
@@ -59,6 +61,8 @@ class AppRoutes {
   static const String gameHub = '/game-hub';
   static const String businesses = '/businesses';
   static const String profile = '/profile';
+  static const String editProfile = '/profile/edit';
+  static const String changePassword = '/profile/password';
   // Root-level business detail modal (works from any tab without changing it)
   static const String businessDetail = '/business/:id';
   static const String upload = '/upload';
@@ -270,6 +274,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: AppRoutes.profile,
             builder: (context, state) => const ProfileScreen(),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) => const EditProfileScreen(),
+              ),
+              GoRoute(
+                path: 'password',
+                builder: (context, state) => const ChangePasswordScreen(),
+              ),
+            ],
           ),
           // 5. GAME
           GoRoute(
@@ -374,26 +388,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
 // Custom Transition Page for Zoom/Fade Effect
 class ZoomTransitionPage<T> extends CustomTransitionPage<T> {
-  ZoomTransitionPage({
-    required Widget child,
-    required LocalKey key,
-  }) : super(
-          key: key,
-          child: child,
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.easeOutQuart,
-                  reverseCurve: Curves.easeInQuart,
-                ),
-                child: child,
+  ZoomTransitionPage({required Widget child, required LocalKey key})
+    : super(
+        key: key,
+        child: child,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: ScaleTransition(
+              scale: CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutQuart,
+                reverseCurve: Curves.easeInQuart,
               ),
-            );
-          },
-          transitionDuration: const Duration(milliseconds: 500),
-        );
+              child: child,
+            ),
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 500),
+      );
 }
-

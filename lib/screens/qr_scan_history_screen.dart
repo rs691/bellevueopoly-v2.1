@@ -3,22 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../models/qr_scan.dart';
-import '../theme/app_colors.dart';
-import '../theme/app_spacing.dart';
+import '../widgets/glassmorphic_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-final qrScansProvider = StreamProvider.autoDispose.family<List<QrScan>, String>(
-  (ref, playerId) {
-    return FirebaseFirestore.instance
-        .collection('players')
-        .doc(playerId)
-        .collection('qrScans')
-        .orderBy('scannedAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) => QrScan.fromFirestore(doc)).toList();
-        });
-  },
-);
+final qrScansProvider = StreamProvider.autoDispose.family<List<QrScan>, String>((
+  ref,
+  playerId,
+) {
+  return FirebaseFirestore.instance
+      .collection('scans')
+      .where('user_id', isEqualTo: playerId)
+      .snapshots()
+      .map((snapshot) {
+        final scans = snapshot.docs
+            .map((doc) => QrScan.fromFirestore(doc))
+            .toList();
+        // Sort manually because combined queries without composite indexes might fail on some Firebase setups
+        // and we want maximum robustness.
+        scans.sort((a, b) => b.scannedAt.compareTo(a.scannedAt));
+        return scans;
+      });
+});
 
 class QrScanHistoryScreen extends ConsumerStatefulWidget {
   final String playerId;
@@ -36,85 +41,128 @@ class _QrScanHistoryScreenState extends ConsumerState<QrScanHistoryScreen> {
     final qrScansAsync = ref.watch(qrScansProvider(widget.playerId));
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('QR Scan History'),
+        title: Text(
+          'QR Scan History',
+          style: GoogleFonts.baloo2(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
         elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: qrScansAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        loading: () =>
+            const Center(child: CircularProgressIndicator(color: Colors.white)),
+        error: (err, stack) => Center(
+          child: Text(
+            'Error loading history: $err',
+            style: const TextStyle(color: Colors.white70),
+          ),
+        ),
         data: (scans) {
           if (scans.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.qr_code_2, size: 64, color: Colors.grey[400]),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    'No QR scans yet',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Scan QR codes at businesses to start earning points',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.qr_code_2,
+                      size: 80,
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'No QR scans yet',
+                      style: GoogleFonts.baloo2(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Scan QR codes at participating businesses to start earning points and climbing the leaderboard!',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             );
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             itemCount: scans.length,
             itemBuilder: (context, index) {
               final scan = scans[index];
               final dateFormat = DateFormat('MMM dd, yyyy • hh:mm a');
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: AppSpacing.md),
+              return GlassmorphicCard(
+                padding: EdgeInsets.zero,
                 child: ListTile(
-                  contentPadding: const EdgeInsets.all(AppSpacing.md),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 12,
+                  ),
                   leading: Container(
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: AppColors.success.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Icon(Icons.check_circle, color: AppColors.success),
+                    child: const Icon(
+                      Icons.qr_code_scanner,
+                      color: Colors.white,
+                    ),
                   ),
                   title: Text(
                     scan.businessName,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.sm),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          dateFormat.format(scan.scannedAt),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey[600]),
-                        ),
-                        if (scan.notes != null && scan.notes!.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(top: AppSpacing.sm),
-                            child: Text(
-                              scan.notes!,
-                              style: Theme.of(context).textTheme.bodySmall,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                      ],
+                    style: GoogleFonts.baloo2(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 18,
                     ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 4),
+                      Text(
+                        dateFormat.format(scan.scannedAt),
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 13,
+                        ),
+                      ),
+                      if (scan.notes != null && scan.notes!.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            scan.notes!,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
                   ),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -122,12 +170,20 @@ class _QrScanHistoryScreenState extends ConsumerState<QrScanHistoryScreen> {
                     children: [
                       Text(
                         '+${scan.pointsEarned}',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        style: GoogleFonts.baloo2(
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.success,
+                          color: Colors.greenAccent,
                         ),
                       ),
-                      const Text('pts', style: TextStyle(fontSize: 10)),
+                      const Text(
+                        'PTS',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.white54,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),

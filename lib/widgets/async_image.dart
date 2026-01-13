@@ -162,8 +162,13 @@ class _AsyncImageState extends State<AsyncImage> {
         return Container(
           width: widget.width,
           height: widget.height,
-          color: Colors.grey[300],
-          child: const Icon(Icons.image_not_supported, color: Colors.grey),
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(widget.borderRadius),
+          ),
+          child: const Center(
+            child: Icon(Icons.image_not_supported, color: Colors.grey),
+          ),
         );
       },
     );

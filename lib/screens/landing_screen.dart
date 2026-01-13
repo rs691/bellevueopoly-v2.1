@@ -57,7 +57,7 @@ class _LandingScreenState extends State<LandingScreen> {
   }
 
   void _handleCreateAccount() {
-    context.go(AppRoutes.welcome);
+    context.go(AppRoutes.register);
   }
 
   @override

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../router/app_router.dart';
-import '../widgets/gradient_background.dart';
-import '../theme/app_theme.dart';
+import '../widgets/glassmorphic_card.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class InstructionsScreen extends StatelessWidget {
   const InstructionsScreen({super.key});
@@ -11,196 +11,211 @@ class InstructionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     const steps = [
       _Step(
-        title: 'Check in at businesses',
+        title: 'Explore the Map',
         body:
-            'Open the map, choose a spot, and scan their QR at the counter to log a visit.',
+            'Browse through the list of participating businesses in Bellevue. Each business is a "property" you can visit.',
+        icon: Icons.map_outlined,
+      ),
+      _Step(
+        title: 'Visit & Scan',
+        body:
+            'Physically visit locations and look for the official QR code. Scan it to check in and log your visit.',
         icon: Icons.qr_code_scanner,
       ),
       _Step(
-        title: 'Earn points automatically',
+        title: 'Earn Points',
         body:
-            'Each successful check-in adds points. Points are tallied in your profile and on the leaderboard.',
-        icon: Icons.stars,
+            'Every successful check-in awards you points. Bonus points may be available for special events!',
+        icon: Icons.stars_rounded,
       ),
       _Step(
-        title: 'Track progress',
+        title: 'Track History',
         body:
-            'See your visits, points, and streaks on Profile → Check-in History. Revisit favorites to climb the board.',
+            'View all your past visits and points in your Profile history section.',
         icon: Icons.history_rounded,
       ),
       _Step(
-        title: 'Redeem rewards',
+        title: 'Win Rewards',
         body:
-            'Watch the Rewards Nearby tab for offers. Some spots unlock perks after repeat visits.',
-        icon: Icons.card_giftcard,
-      ),
-      _Step(
-        title: 'Stay verified',
-        body:
-            'Keep your email verified and location services on so scans record correctly.',
-        icon: Icons.verified_user,
+            'Climb the leaderboard and complete collections to unlock prizes from local businesses.',
+        icon: Icons.emoji_events_outlined,
       ),
     ];
 
     const tips = [
-      'If a scan fails, move closer to the QR and brighten your screen.',
-      'Only one check-in per business counts per cooldown window (no rapid repeats).',
-      'Bad connection? Your scan queues and syncs when you regain signal.',
-      'You can always re-open past visits from Check-in History.',
+      'Ensure location services are enabled for accurate check-ins.',
+      'Check back daily for new bonus locations and events.',
+      'Poor connection? Your scan will sync once you are back online.',
+      'Visit diverse categories to complete your city collection!',
     ];
 
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: const Text('How to Play'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _heroCard(context),
-              const SizedBox(height: 16),
-              ...List.generate(
-                steps.length,
-                (i) => _StepCard(step: steps[i], index: i),
-              ),
-              const SizedBox(height: 16),
-              _tipsCard(tips),
-              const SizedBox(height: 16),
-              _ctaButtons(context),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text(
+          'How to Play',
+          style: GoogleFonts.baloo2(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _heroCard(BuildContext context) {
-    return Card(
-      color: Colors.white.withValues(alpha: 0.08),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppTheme.accentPurple.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.emoji_events,
-                color: Colors.white,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Welcome to Bellevueopoly',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 6),
-                  Text(
-                    'Explore local businesses, check in, and climb the leaderboard. Here is the quick start guide.',
-                    style: TextStyle(color: Colors.white70, height: 1.3),
-                  ),
-                ],
-              ),
-            ),
-          ],
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-    );
-  }
-
-  Widget _tipsCard(List<String> tips) {
-    return Card(
-      color: Colors.white.withValues(alpha: 0.08),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Pro tips',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+            _buildHeroCard(),
+            const SizedBox(height: 24),
+            ...List.generate(
+              steps.length,
+              (i) => _StepCard(step: steps[i], index: i),
             ),
-            const SizedBox(height: 12),
-            ...tips.map(
-              (tip) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '• ',
-                      style: TextStyle(color: Colors.white70, height: 1.4),
-                    ),
-                    Expanded(
-                      child: Text(
-                        tip,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          height: 1.4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 24),
+            _buildTipsCard(tips),
+            const SizedBox(height: 24),
+            _buildCtaButtons(context),
+            const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  Widget _ctaButtons(BuildContext context) {
+  Widget _buildHeroCard() {
+    return GlassmorphicCard(
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.help_outline,
+              color: Colors.white,
+              size: 32,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Quick Start Guide',
+                  style: GoogleFonts.baloo2(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                Text(
+                  'Follow these steps to start your Bellevue journey.',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.7),
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipsCard(List<String> tips) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4.0, bottom: 12.0),
+          child: Text(
+            'PRO TIPS',
+            style: GoogleFonts.baloo2(
+              fontWeight: FontWeight.bold,
+              color: Colors.white70,
+              letterSpacing: 1.2,
+            ),
+          ),
+        ),
+        GlassmorphicCard(
+          child: Column(
+            children: tips
+                .map(
+                  (tip) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Icon(
+                          Icons.lightbulb_outline,
+                          size: 16,
+                          color: Colors.orangeAccent,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            tip,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              fontSize: 13,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCtaButtons(BuildContext context) {
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton.icon(
+          child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.accentPurple,
+              backgroundColor: Colors.white.withValues(alpha: 0.1),
               foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 14),
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              side: const BorderSide(color: Colors.white24),
             ),
             onPressed: () => context.go(AppRoutes.stopHub),
-            icon: const Icon(Icons.map_outlined),
-            label: const Text('Open Map'),
+            child: const Text('OPEN MAP'),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: OutlinedButton.icon(
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.white54),
-              padding: const EdgeInsets.symmetric(vertical: 14),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white.withValues(alpha: 0.1),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              side: const BorderSide(color: Colors.white24),
             ),
             onPressed: () => context.push(AppRoutes.checkinHistory),
-            icon: const Icon(Icons.history, color: Colors.white70),
-            label: const Text(
-              'Check-in History',
-              style: TextStyle(color: Colors.white70),
-            ),
+            child: const Text('HISTORY'),
           ),
         ),
       ],
@@ -216,44 +231,50 @@ class _StepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSlide(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-      offset: const Offset(0, 0.05),
-      child: AnimatedOpacity(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-        opacity: 1,
-        child: Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          color: Colors.white.withValues(alpha: 0.06),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: GlassmorphicCard(
+        padding: EdgeInsets.zero,
+        child: ListTile(
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 12,
           ),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: AppTheme.accentPurple.withValues(alpha: 0.16),
-              child: Icon(step.icon, color: Colors.white),
+          leading: Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            title: Text(
-              step.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            subtitle: Text(
-              step.body,
-              style: const TextStyle(color: Colors.white70, height: 1.35),
-            ),
-            trailing: Text(
-              '#${index + 1}',
-              style: const TextStyle(
-                color: Colors.white38,
-                fontWeight: FontWeight.bold,
+            child: Center(
+              child: Text(
+                '${index + 1}',
+                style: GoogleFonts.baloo2(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
+          title: Text(
+            step.title,
+            style: GoogleFonts.baloo2(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontSize: 18,
+            ),
+          ),
+          subtitle: Text(
+            step.body,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.7),
+              fontSize: 14,
+              height: 1.3,
+            ),
+          ),
+          trailing: Icon(step.icon, color: Colors.white38, size: 24),
         ),
       ),
     );

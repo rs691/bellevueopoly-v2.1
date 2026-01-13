@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../models/business.dart';
+import '../models/business_model.dart';
 import 'glassmorphic_card.dart';
 
 class BusinessCard extends StatelessWidget {

@@ -14,5 +14,6 @@ class CityConfig with _$CityConfig {
     // Add any other city-wide configuration parameters here
   }) = _CityConfig;
 
-  factory CityConfig.fromJson(Map<String, dynamic> json) => _$CityConfigFromJson(json);
+  factory CityConfig.fromJson(Map<String, dynamic> json) =>
+      _$CityConfigFromJson(json);
 }

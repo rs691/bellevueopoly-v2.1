@@ -31,7 +31,7 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
   bool _isLoadingLocation = true;
   String? _locationError;
   String _searchQuery = '';
-  
+
   // Filter States
   String _selectedCategory = 'All';
   bool _onlyWithRewards = false;
@@ -260,14 +260,18 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                       Expanded(
                         child: custom_search.SearchBar(
                           hintText: 'Search businesses...',
-                          onChanged: (query) => setState(() => _searchQuery = query),
+                          onChanged: (query) =>
+                              setState(() => _searchQuery = query),
                           onClear: () => setState(() => _searchQuery = ''),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Container(
                         decoration: BoxDecoration(
-                          color: (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
+                          color:
+                              (_onlyWithRewards ||
+                                  _onlyWithPoints ||
+                                  _selectedCategory != 'All')
                               ? AppColors.primaryPurple
                               : Colors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -282,7 +286,10 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                         child: IconButton(
                           icon: Icon(
                             Icons.tune,
-                            color: (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
+                            color:
+                                (_onlyWithRewards ||
+                                    _onlyWithPoints ||
+                                    _selectedCategory != 'All')
                                 ? Colors.white
                                 : AppColors.darkGrey,
                           ),
@@ -295,56 +302,75 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                 ),
 
                 // Active Filters Summary (Horizontal Scroll)
-                if (_onlyWithRewards || _onlyWithPoints || _selectedCategory != 'All')
-                   SizedBox(
+                if (_onlyWithRewards ||
+                    _onlyWithPoints ||
+                    _selectedCategory != 'All')
+                  SizedBox(
                     height: 40,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                      ),
                       children: [
                         if (_onlyWithRewards)
                           Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Chip(
-                              label: const Text('Has Rewards', style: TextStyle(fontSize: 12)),
-                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              label: const Text(
+                                'Has Rewards',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: AppColors.primaryPurple
+                                  .withOpacity(0.1),
                               deleteIcon: const Icon(Icons.close, size: 16),
-                              onDeleted: () => setState(() => _onlyWithRewards = false),
+                              onDeleted: () =>
+                                  setState(() => _onlyWithRewards = false),
                             ),
                           ),
                         if (_onlyWithPoints)
                           Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Chip(
-                              label: const Text('Has Points', style: TextStyle(fontSize: 12)),
-                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              label: const Text(
+                                'Has Points',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: AppColors.primaryPurple
+                                  .withOpacity(0.1),
                               deleteIcon: const Icon(Icons.close, size: 16),
-                              onDeleted: () => setState(() => _onlyWithPoints = false),
+                              onDeleted: () =>
+                                  setState(() => _onlyWithPoints = false),
                             ),
                           ),
                         if (_selectedCategory != 'All')
                           Padding(
                             padding: const EdgeInsets.only(right: 8.0),
                             child: Chip(
-                              label: Text(_selectedCategory, style: const TextStyle(fontSize: 12)),
-                              backgroundColor: AppColors.primaryPurple.withOpacity(0.1),
+                              label: Text(
+                                _selectedCategory,
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                              backgroundColor: AppColors.primaryPurple
+                                  .withOpacity(0.1),
                               deleteIcon: const Icon(Icons.close, size: 16),
-                              onDeleted: () => setState(() => _selectedCategory = 'All'),
+                              onDeleted: () =>
+                                  setState(() => _selectedCategory = 'All'),
                             ),
                           ),
-                         Padding(
-                           padding: const EdgeInsets.only(right: 8.0),
-                           child: TextButton(
-                             onPressed: () {
-                               setState(() {
-                                 _onlyWithRewards = false;
-                                 _onlyWithPoints = false;
-                                 _selectedCategory = 'All';
-                               });
-                             },
-                             child: const Text('Clear All'),
-                           ),
-                         ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _onlyWithRewards = false;
+                                _onlyWithPoints = false;
+                                _selectedCategory = 'All';
+                              });
+                            },
+                            child: const Text('Clear All'),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -389,7 +415,7 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                             }
 
                             // 2. Category Filter
-                            if (_selectedCategory != 'All' && 
+                            if (_selectedCategory != 'All' &&
                                 b.category != _selectedCategory) {
                               return false;
                             }
@@ -400,7 +426,9 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                             }
 
                             // 4. Points Filter (Has check-in points > 0)
-                            if (_onlyWithPoints && (b.checkInPoints == null || b.checkInPoints! <= 0)) {
+                            if (_onlyWithPoints &&
+                                (b.checkInPoints == null ||
+                                    b.checkInPoints! <= 0)) {
                               return false;
                             }
 
@@ -524,9 +552,8 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                         children: [
                           Text(
                             'Filter Businesses',
-                            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           TextButton(
                             onPressed: () {
@@ -546,13 +573,12 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                       ),
                       const Divider(),
                       const SizedBox(height: AppSpacing.md),
-                      
+
                       // 1. Quick Filters
                       Text(
                         'Quick Filters',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Wrap(
@@ -562,8 +588,8 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                           FilterChip(
                             label: const Text('Rewards Only'),
                             selected: _onlyWithRewards,
-                            avatar: _onlyWithRewards 
-                                ? const Icon(Icons.check, size: 18) 
+                            avatar: _onlyWithRewards
+                                ? const Icon(Icons.check, size: 18)
                                 : const Icon(Icons.local_offer, size: 18),
                             onSelected: (bool selected) {
                               setModalState(() {
@@ -574,8 +600,8 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                           FilterChip(
                             label: const Text('Points Only'),
                             selected: _onlyWithPoints,
-                            avatar: _onlyWithPoints 
-                                ? const Icon(Icons.check, size: 18) 
+                            avatar: _onlyWithPoints
+                                ? const Icon(Icons.check, size: 18)
                                 : const Icon(Icons.star, size: 18),
                             onSelected: (bool selected) {
                               setModalState(() {
@@ -585,15 +611,14 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                           ),
                         ],
                       ),
-                      
+
                       const SizedBox(height: AppSpacing.lg),
-                      
+
                       // 2. Categories
                       Text(
                         'Categories',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Wrap(
@@ -613,9 +638,9 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                           );
                         }).toList(),
                       ),
-                      
+
                       const SizedBox(height: AppSpacing.xl),
-                      
+
                       // Apply Button
                       SizedBox(
                         width: double.infinity,
@@ -629,7 +654,13 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Show Results', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Show Results',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -646,7 +677,8 @@ class _RewardsNearbyScreenState extends ConsumerState<RewardsNearbyScreen> {
 
   @override
   void dispose() {
-    _mapController?.dispose();
+    // Note: On web, explicit disposal of the map controller can cause a crash
+    // if the underlying view isn't fully ready. The widget handles cleanup.
     super.dispose();
   }
 }
@@ -735,21 +767,25 @@ class _BusinessDistanceCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 10.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12.0,
+              vertical: 12.0,
+            ),
             child: Row(
               children: [
-                // Business Icon/Image - smaller
+                // Business Icon/Image - larger
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(8),
                   child: AsyncImage(
                     imageUrl: business.heroImageUrl,
-                    width: 40,
-                    height: 40,
+                    width: 50,
+                    height: 50,
                     fit: BoxFit.cover,
-                    placeholderAsset: 'assets/images/restaurant_placeholder.png',
+                    placeholderAsset:
+                        'assets/images/restaurant_placeholder.png',
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 16),
 
                 // Business Name and Offer Details
                 Expanded(
@@ -760,7 +796,7 @@ class _BusinessDistanceCard extends StatelessWidget {
                       Text(
                         business.name,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: Colors.white, // White text
                         ),

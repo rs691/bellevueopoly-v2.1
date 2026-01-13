@@ -13,10 +13,7 @@ class FirestoreService {
   // SECTION 1: USER LOGIC (Authentication & Player Data)
   // ==============================================================================
 
-  Future<void> addUser({
-    required User user,
-    required String username,
-  }) async {
+  Future<void> addUser({required User user, required String username}) async {
     final userRef = _db.collection('users').doc(user.uid);
     final globalStatsRef = _db.collection('globals').doc('stats');
 
@@ -62,7 +59,7 @@ class FirestoreService {
           'gamesWon': 0,
         });
       });
-      
+
       if (isAnonymous) {
         debugPrint('✅ Anonymous user created with admin privileges');
       }
@@ -90,7 +87,9 @@ class FirestoreService {
           'gamesPlayed': 0,
           'gamesWon': 0,
         }, SetOptions(merge: true));
-        debugPrint('✅ Fallback: Created user via direct set (no sequential ID).');
+        debugPrint(
+          '✅ Fallback: Created user via direct set (no sequential ID).',
+        );
       } catch (fallbackError) {
         debugPrint('❌ CRITICAL: Fallback user creation failed: $fallbackError');
         rethrow;
@@ -124,6 +123,15 @@ class FirestoreService {
     }
   }
 
+  Future<void> updateUser(String uid, Map<String, dynamic> data) async {
+    try {
+      await _db.collection('users').doc(uid).update(data);
+    } catch (e) {
+      debugPrint('Error updating user in Firestore: $e');
+      rethrow;
+    }
+  }
+
   // ==============================================================================
   // SECTION 2: BUSINESS LOGIC (Map Data & Seeding)
   // ==============================================================================
@@ -148,7 +156,9 @@ class FirestoreService {
       }
 
       await batch.commit();
-      debugPrint("✅ Successfully uploaded ${businesses.length} businesses to Firestore!");
+      debugPrint(
+        "✅ Successfully uploaded ${businesses.length} businesses to Firestore!",
+      );
 
       // --- NEW: SEED PRIZES ---
       // Adding sample prizes to the prizes collection
@@ -157,13 +167,31 @@ class FirestoreService {
       final prizesSnapshot = await prizesRef.limit(1).get();
       if (prizesSnapshot.docs.isEmpty) {
         final prizesBatch = _db.batch();
-        
+
         final samplePrizes = [
-          {'description': 'Weekend getaway for two plus a \$250 dining credit.', 'tier': 'Gold'},
-          {'description': 'Gift cards to top Bellevue eateries and coffee shops.', 'tier': 'Silver'},
-          {'description': 'Limited-run hoodie, enamel pin set, and water bottle.', 'tier': 'Bronze'},
-          {'description': 'Pop-up discounts for check-ins this week only.', 'tier': 'Common'},
-          {'description': 'Flash reward that appears Fridays at noon.', 'tier': 'Secret'},
+          {
+            'description':
+                'Weekend getaway for two plus a \$250 dining credit.',
+            'tier': 'Gold',
+          },
+          {
+            'description':
+                'Gift cards to top Bellevue eateries and coffee shops.',
+            'tier': 'Silver',
+          },
+          {
+            'description':
+                'Limited-run hoodie, enamel pin set, and water bottle.',
+            'tier': 'Bronze',
+          },
+          {
+            'description': 'Pop-up discounts for check-ins this week only.',
+            'tier': 'Common',
+          },
+          {
+            'description': 'Flash reward that appears Fridays at noon.',
+            'tier': 'Secret',
+          },
         ];
 
         for (var prize in samplePrizes) {
@@ -182,7 +210,9 @@ class FirestoreService {
   // Used by the App to get businesses from Firestore instead of local JSON
   Stream<List<Business>> getBusinessesStream() {
     return _db.collection('businesses').snapshots().map((snapshot) {
-      debugPrint("📢 Firestore Business Stream Update: ${snapshot.docs.length} documents found.");
+      debugPrint(
+        "📢 Firestore Business Stream Update: ${snapshot.docs.length} documents found.",
+      );
       return snapshot.docs.map((doc) {
         final data = doc.data();
         data['id'] = doc.id; // Ensure ID matches doc ID
@@ -198,34 +228,35 @@ class FirestoreService {
 
   // Get Top Players for Leaderboard
   Stream<List<Player>> getTopPlayersStream({int limit = 20}) {
-    return _db.collection('users')
+    return _db
+        .collection('users')
         .orderBy('total_points', descending: true)
         .limit(limit)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        final data = doc.data();
-        data['id'] = doc.id;
-        // Handle potential parsing errors safely
-        try {
-          // If 'id' is missing in data, we added it. But Player.fromJson might expect other required fields.
-          // We need to ensure data has what Player needs, or construct it manually.
-          return Player.fromJson(data);
-        } catch (e) {
-          debugPrint("Error parsing player ${doc.id}: $e");
-          // Return a placeholder so the stream doesn't crash
-          return Player(
-            id: doc.id, 
-            name: data['username'] ?? 'Unknown', 
-            balance: 0, 
-            ownedPropertyIds: [], 
-            totalVisits: (data['totalVisits'] as int?) ?? 0,
-            totalPoints: (data['total_points'] as int?) ?? 0,
-            createdAt: DateTime.now()
-          );
-        }
-      }).toList();
-    });
+          return snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            // Handle potential parsing errors safely
+            try {
+              // If 'id' is missing in data, we added it. But Player.fromJson might expect other required fields.
+              // We need to ensure data has what Player needs, or construct it manually.
+              return Player.fromJson(data);
+            } catch (e) {
+              debugPrint("Error parsing player ${doc.id}: $e");
+              // Return a placeholder so the stream doesn't crash
+              return Player(
+                id: doc.id,
+                name: data['username'] ?? 'Unknown',
+                balance: 0,
+                ownedPropertyIds: [],
+                totalVisits: (data['totalVisits'] as int?) ?? 0,
+                totalPoints: (data['total_points'] as int?) ?? 0,
+                createdAt: DateTime.now(),
+              );
+            }
+          }).toList();
+        });
   }
 
   // ==============================================================================

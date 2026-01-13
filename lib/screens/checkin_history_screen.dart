@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/async_image.dart';
-import '../widgets/gradient_background.dart';
+import 'package:intl/intl.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../widgets/glassmorphic_card.dart';
 import '../theme/app_theme.dart';
 import '../router/app_router.dart';
-// import 'dart:math' as math; // unused import
 
 class CheckinHistoryScreen extends StatelessWidget {
   const CheckinHistoryScreen({super.key});
@@ -16,7 +16,13 @@ class CheckinHistoryScreen extends StatelessWidget {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       return const Scaffold(
-        body: Center(child: Text('Please sign in to view your check-ins.')),
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Text(
+            'Please sign in to view your check-ins.',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
       );
     }
 
@@ -31,188 +37,254 @@ class CheckinHistoryScreen extends StatelessWidget {
         .orderBy('scanned_at', descending: true)
         .snapshots();
 
-    return GradientBackground(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: const Text('Check-in History'),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text(
+          'Check-in History',
+          style: GoogleFonts.baloo2(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        body: StreamBuilder<DocumentSnapshot>(
-          stream: userDocStream,
-          builder: (context, userSnap) {
-            final userData = userSnap.data?.data() as Map<String, dynamic>?;
-            final name = userData?['username'] as String? ?? 'Unknown';
-            final email = userData?['email'] as String? ?? '';
-            final lastLogin = user.metadata.lastSignInTime;
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: userDocStream,
+        builder: (context, userSnap) {
+          final userData = userSnap.data?.data() as Map<String, dynamic>?;
+          final name =
+              userData?['username'] ?? userData?['displayName'] ?? 'Explorer';
+          final email = userData?['email'] ?? user.email ?? '';
+          final lastLogin = user.metadata.lastSignInTime;
 
-            return Column(
-              children: [
-                _UserInfoCard(
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: _UserInfoCard(
                   name: name,
                   email: email,
                   lastLogin: lastLogin,
-                  totalPoints: userData?['total_points'] as int? ?? 0,
-                  totalVisits: userData?['totalVisits'] as int? ?? 0,
+                  totalPoints: userData?['total_points'] ?? 0,
+                  totalVisits: userData?['totalVisits'] ?? 0,
                 ),
-                const SizedBox(height: 12),
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: scansStream,
-                    builder: (context, scanSnap) {
-                      if (scanSnap.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                      if (scanSnap.hasError) {
-                        return Center(child: Text('Error: ${scanSnap.error}'));
-                      }
-                      final docs = scanSnap.data?.docs ?? [];
-                      if (docs.isEmpty) {
-                        return const Center(child: Text('No check-ins yet.'));
-                      }
-                      return FutureBuilder<Map<String, _BizMeta>>(
-                        future: _resolveBusinessMeta(docs),
-                        builder: (context, metaSnap) {
-                          final metaMap = metaSnap.data ?? const {};
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                child: Text(
+                  'RECENT ACTIVITY',
+                  style: GoogleFonts.baloo2(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white70,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: scansStream,
+                  builder: (context, scanSnap) {
+                    if (scanSnap.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      );
+                    }
+                    if (scanSnap.hasError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${scanSnap.error}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                      );
+                    }
+                    final docs = scanSnap.data?.docs ?? [];
+                    if (docs.isEmpty) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.history_rounded,
+                              size: 64,
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No check-ins yet.',
+                              style: TextStyle(color: Colors.white60),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return FutureBuilder<Map<String, _BizMeta>>(
+                      future: _resolveBusinessMeta(docs),
+                      builder: (context, metaSnap) {
+                        final metaMap = metaSnap.data ?? const {};
 
-                          return ListView.separated(
-                            padding: const EdgeInsets.all(12),
-                            itemCount: docs.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 8),
-                            itemBuilder: (context, index) {
-                              final data =
-                                  docs[index].data() as Map<String, dynamic>;
-                              final businessId =
-                                  data['business_id'] as String? ??
-                                  'Unknown business';
-                              final meta = metaMap[businessId];
-                              final businessName = meta?.name ?? businessId;
-                              final addressLine = meta?.address ?? '';
-                              final imageUrl = meta?.imageUrl;
-                              final category = meta?.category;
-                              final points = data['points_awarded'] ?? 0;
-                              final ts =
-                                  (data['scanned_at'] ?? data['timestamp'])
-                                      as Timestamp?;
-                              final dateStr = ts != null
-                                  ? _format(ts.toDate())
-                                  : 'Unknown time';
+                        return ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          itemCount: docs.length,
+                          itemBuilder: (context, index) {
+                            final data =
+                                docs[index].data() as Map<String, dynamic>;
+                            final businessId = data['business_id'] ?? '';
+                            final meta = metaMap[businessId];
+                            final businessName =
+                                data['businessName'] ??
+                                data['business_name'] ??
+                                meta?.name ??
+                                'Business';
+                            final addressLine = meta?.address ?? '';
+                            final imageUrl = meta?.imageUrl;
+                            final points =
+                                data['points_awarded'] ??
+                                data['points_earned'] ??
+                                100;
+                            final ts =
+                                (data['scanned_at'] ?? data['timestamp'])
+                                    as Timestamp?;
+                            final dateStr = ts != null
+                                ? DateFormat(
+                                    'MMM dd, yyyy • hh:mm a',
+                                  ).format(ts.toDate())
+                                : 'Recently';
 
-                              return TweenAnimationBuilder<double>(
-                                tween: Tween(begin: 20, end: 0),
-                                duration: const Duration(milliseconds: 250),
-                                curve: Curves.easeOut,
-                                builder: (context, offset, child) {
-                                  return Transform.translate(
-                                    offset: Offset(0, offset),
-                                    child: Opacity(
-                                      opacity: 1 - (offset / 20).clamp(0, 1),
-                                      child: child,
-                                    ),
-                                  );
-                                },
-                                child: Card(
-                                  color: Colors.white.withOpacity(0.08),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 1.0, end: 0.0),
+                              duration: Duration(
+                                milliseconds: 300 + (index * 50).clamp(0, 300),
+                              ),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, 20 * value),
+                                  child: Opacity(
+                                    opacity: 1 - value,
+                                    child: child,
                                   ),
+                                );
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: GlassmorphicCard(
+                                  padding: EdgeInsets.zero,
                                   child: ListTile(
                                     onTap: () => context.push(
                                       '${AppRoutes.stopHub}/business/$businessId',
                                     ),
-                                    leading: ClipOval(
-                                      child: AsyncImage(
-                                        imageUrl: imageUrl,
-                                        width: 40,
-                                        height: 40,
-                                        fit: BoxFit.cover,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    leading: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        image: imageUrl != null
+                                            ? DecorationImage(
+                                                image: NetworkImage(imageUrl),
+                                                fit: BoxFit.cover,
+                                              )
+                                            : null,
                                       ),
+                                      child: imageUrl == null
+                                          ? const Icon(
+                                              Icons.storefront,
+                                              color: Colors.white70,
+                                            )
+                                          : null,
                                     ),
                                     title: Text(
                                       businessName,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                      style: GoogleFonts.baloo2(
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 18,
                                       ),
                                     ),
                                     subtitle: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          children: [
-                                            _pill(dateStr),
-                                            const SizedBox(width: 6),
-                                            if (category != null &&
-                                                category.isNotEmpty)
-                                              _pill(
-                                                category,
-                                                color: Colors.white24,
-                                              ),
-                                          ],
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          dateStr,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.6,
+                                            ),
+                                            fontSize: 13,
+                                          ),
                                         ),
                                         if (addressLine.isNotEmpty)
                                           Padding(
                                             padding: const EdgeInsets.only(
-                                              top: 4.0,
+                                              top: 2.0,
                                             ),
                                             child: Text(
                                               addressLine,
                                               style: const TextStyle(
-                                                color: Colors.white54,
+                                                color: Colors.white38,
                                                 fontSize: 12,
                                               ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                       ],
                                     ),
-                                    trailing: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.accentPurple
-                                            .withOpacity(0.2),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            '+$points',
-                                            style: const TextStyle(
-                                              color: AppTheme.accentPurple,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 16,
-                                            ),
+                                    trailing: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          '+$points',
+                                          style: GoogleFonts.baloo2(
+                                            color: Colors.greenAccent,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
                                           ),
-                                          const Text(
-                                            'points',
-                                            style: TextStyle(
-                                              color: Colors.white70,
-                                              fontSize: 11,
-                                            ),
+                                        ),
+                                        const Text(
+                                          'PTS',
+                                          style: TextStyle(
+                                            color: Colors.white38,
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -231,7 +303,6 @@ class CheckinHistoryScreen extends StatelessWidget {
     final result = <String, _BizMeta>{};
     final chunks = ids.toList();
 
-    // Firestore whereIn supports up to 10 items; chunk accordingly
     for (var i = 0; i < chunks.length; i += 10) {
       final slice = chunks.sublist(
         i,
@@ -278,13 +349,6 @@ class CheckinHistoryScreen extends StatelessWidget {
     ];
     return parts.where((e) => e.isNotEmpty).join(' · ');
   }
-
-  String _format(DateTime dt) {
-    final local = dt.toLocal();
-    final hh = local.hour.toString().padLeft(2, '0');
-    final mm = local.minute.toString().padLeft(2, '0');
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hh:$mm';
-  }
 }
 
 class _UserInfoCard extends StatelessWidget {
@@ -304,67 +368,113 @@ class _UserInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      color: Colors.white.withOpacity(0.08),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+    return GlassmorphicCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person, color: Colors.white, size: 28),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(email, style: const TextStyle(color: Colors.white70)),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: GoogleFonts.baloo2(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Text(
+                      email,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                  'Points',
+                  '$totalPoints',
+                  Icons.stars_rounded,
+                ),
+              ),
+              Container(width: 1, height: 40, color: Colors.white12),
+              Expanded(
+                child: _buildStatItem('Visits', '$totalVisits', Icons.place),
+              ),
+            ],
+          ),
+          if (lastLogin != null) ...[
+            const SizedBox(height: 16),
+            Divider(color: Colors.white.withValues(alpha: 0.1)),
             const SizedBox(height: 8),
             Row(
               children: [
-                _pill('Points: $totalPoints'),
-                const SizedBox(width: 8),
-                _pill('Visits: $totalVisits'),
+                Icon(
+                  Icons.access_time,
+                  size: 14,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Last seen: ${DateFormat('MMM dd, yyyy').format(lastLogin!)}',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.5),
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
-            if (lastLogin != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Last login: ${_format(lastLogin!)}',
-                style: const TextStyle(color: Colors.white70, fontSize: 12),
-              ),
-            ],
           ],
-        ),
+        ],
       ),
     );
   }
 
-  String _format(DateTime dt) {
-    final local = dt.toLocal();
-    final hh = local.hour.toString().padLeft(2, '0');
-    final mm = local.minute.toString().padLeft(2, '0');
-    return '${local.year}-${local.month.toString().padLeft(2, '0')}-${local.day.toString().padLeft(2, '0')} $hh:$mm';
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: AppTheme.accentPurple, size: 24),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: GoogleFonts.baloo2(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        Text(
+          label.toUpperCase(),
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.white.withValues(alpha: 0.6),
+            letterSpacing: 1.0,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
   }
-}
-
-Widget _pill(String text, {Color? color}) {
-  final bg = color ?? Colors.white.withOpacity(0.12);
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: bg,
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Text(
-      text,
-      style: const TextStyle(color: Colors.white, fontSize: 12),
-    ),
-  );
 }
 
 class _BizMeta {

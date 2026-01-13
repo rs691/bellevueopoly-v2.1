@@ -27,7 +27,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
   String _password = '';
   String _username = '';
   bool _isLoading = false;
-  bool _showForm = false;
+  bool _showForm = true;
 
   late AnimationController _formAnimationController;
   late Animation<Offset> _slideAnimation;
@@ -51,6 +51,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _formAnimationController, curve: Curves.easeOut),
     );
+    // Show form immediately since it's now true by default
+    _formAnimationController.forward();
   }
 
   Future<void> _initializeVideo() async {
@@ -255,6 +257,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       TextFormField(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                         decoration: const InputDecoration(
                                           labelText: 'USERNAME',
                                         ),
@@ -270,6 +275,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
                                       ),
                                       const SizedBox(height: 16),
                                       TextFormField(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                         decoration: const InputDecoration(
                                           labelText: 'EMAIL ADDRESS',
                                         ),
@@ -288,6 +296,9 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen>
                                       ),
                                       const SizedBox(height: 16),
                                       TextFormField(
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                        ),
                                         decoration: const InputDecoration(
                                           labelText: 'PASSWORD',
                                         ),

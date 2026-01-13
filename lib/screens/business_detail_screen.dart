@@ -51,7 +51,9 @@ class BusinessDetailScreen extends ConsumerWidget {
                           spreadRadius: 5,
                         ),
                       ],
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(24),
@@ -92,26 +94,49 @@ class BusinessDetailScreen extends ConsumerWidget {
                                             ),
                                       ),
                                       const SizedBox(height: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.orangeAccent,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 5,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.orangeAccent,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              business.category.toUpperCase(),
+                                              style: const TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 12,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                        child: Text(
-                                          business.category
-                                              .toUpperCase(),
-                                          style: const TextStyle(
-                                            color: Colors.black,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12,
-                                          ),
-                                        ),
+                                          if (business.location.isNotEmpty)
+                                            Row(
+                                              children: [
+                                                const Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.white70,
+                                                  size: 16,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  business.location,
+                                                  style: const TextStyle(
+                                                    color: Colors.white70,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w500,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                        ],
                                       ),
                                       const SizedBox(height: 24),
 
@@ -176,8 +201,8 @@ class BusinessDetailScreen extends ConsumerWidget {
                                         Container(
                                           padding: const EdgeInsets.all(16),
                                           decoration: BoxDecoration(
-                                            color: Colors.white.withValues(alpha: 
-                                              0.05,
+                                            color: Colors.white.withValues(
+                                              alpha: 0.05,
                                             ),
                                             borderRadius: BorderRadius.circular(
                                               12,
@@ -232,8 +257,7 @@ class BusinessDetailScreen extends ConsumerWidget {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              business.address ??
-                                                  "Address not available",
+                                              business.fullAddress,
                                               style: const TextStyle(
                                                 color: Colors.white,
                                               ),
@@ -283,4 +307,3 @@ class BusinessDetailScreen extends ConsumerWidget {
     }
   }
 }
-

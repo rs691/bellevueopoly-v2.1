@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widgets/gradient_background.dart';
+import '../widgets/glassmorphic_card.dart';
 import '../theme/app_theme.dart';
 import '../services/firestore_service.dart';
 
@@ -227,16 +229,23 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title: const Text('Admin Console'),
+          title: Text(
+            'Admin Console',
+            style: GoogleFonts.baloo2(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          centerTitle: true,
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.go('/'),
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.delete_sweep),
+              icon: const Icon(Icons.delete_sweep, color: Colors.white),
               tooltip: "Clear Log",
               onPressed: _clearLog,
             ),
@@ -248,28 +257,23 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.05),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white10),
-                ),
-                child: const Row(
+              GlassmorphicCard(
+                child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.security,
                       size: 32,
                       color: AppTheme.accentOrange,
                     ),
-                    SizedBox(width: 16),
+                    const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           "Database Controls",
-                          style: TextStyle(
+                          style: GoogleFonts.baloo2(
                             color: Colors.white,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -285,9 +289,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const SizedBox(height: 24),
 
               // Actions Section
-              const Text(
+              Text(
                 "DATA MANAGEMENT",
-                style: TextStyle(
+                style: GoogleFonts.baloo2(
                   color: AppTheme.accentPurple,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -301,8 +305,12 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                 label: const Text("Seed Database (Upload JSON)"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppTheme.primaryPurple,
+                  foregroundColor: Colors.white,
                   side: const BorderSide(color: AppTheme.accentOrange),
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: _isLoading ? null : _seedFirestore,
               ),
@@ -310,9 +318,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const SizedBox(height: 24),
 
               // Testing Tools
-              const Text(
+              Text(
                 "TESTING TOOLS",
-                style: TextStyle(
+                style: GoogleFonts.baloo2(
                   color: AppTheme.accentOrange,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -327,6 +335,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                   backgroundColor: Colors.white.withValues(alpha: 0.1),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  side: const BorderSide(color: Colors.white24),
                 ),
                 onPressed: _isLoading ? null : _showBusinessQRList,
               ),
@@ -334,9 +346,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               const SizedBox(height: 24),
 
               // Inspection Section
-              const Text(
+              Text(
                 "INSPECTION",
-                style: TextStyle(
+                style: GoogleFonts.baloo2(
                   color: AppTheme.accentPurple,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -355,6 +367,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                         backgroundColor: Colors.white.withValues(alpha: 0.1),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Colors.white24),
                       ),
                       onPressed: _isLoading ? null : _listBusinesses,
                     ),
@@ -368,6 +384,10 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                         backgroundColor: Colors.white.withValues(alpha: 0.1),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Colors.white24),
                       ),
                       onPressed: _isLoading ? null : _listUsers,
                     ),
@@ -376,9 +396,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
               ),
 
               const SizedBox(height: 24),
-              const Text(
+              Text(
                 "CONSOLE LOG",
-                style: TextStyle(
+                style: GoogleFonts.baloo2(
                   color: Colors.white54,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
@@ -397,7 +417,9 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                     border: Border.all(color: Colors.white10),
                   ),
                   child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
+                      ? const Center(
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
                       : SingleChildScrollView(
                           reverse: false,
                           child: Text(
@@ -406,8 +428,7 @@ class _AdminScreenState extends ConsumerState<AdminScreen> {
                               color: AppTheme.accentPurple,
                               fontFamily: 'Courier',
                               fontSize: 13,
-                              height:
-                                  1.2, // Slightly more spacing between lines
+                              height: 1.2,
                             ),
                           ),
                         ),
