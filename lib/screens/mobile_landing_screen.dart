@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../router/app_router.dart';
 import '../providers/user_data_provider.dart';
+import '../widgets/pentagon_button.dart';
 
 class MobileLandingScreen extends ConsumerStatefulWidget {
   const MobileLandingScreen({super.key});
@@ -278,7 +279,12 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
                       centerY: centerY,
                       radius: radius,
                       tileSize: tileSize,
-                      child: _buildTile(items[i], tileSize),
+                      child: PentagonButton(
+                        icon: items[i].icon,
+                        label: items[i].label, // Fixed property name
+                        onTap: items[i].onTap,
+                        size: tileSize,
+                      ),
                     ),
                   ],
                   // Countdown Timer and Footer at Bottom
@@ -304,174 +310,6 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
         },
       ),
     );
-  }
-
-  Widget _buildTile(_PentagonItem item, double tileSize) {
-    return SizedBox(
-      width: tileSize,
-      height: tileSize,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24), // Match navbar radius
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15), // Match navbar blur
-          child: Container(
-            decoration: BoxDecoration(
-              // Match navbar gradient
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.white.withOpacity(0.4),
-                  Colors.white.withOpacity(0.25),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: Colors.white.withOpacity(0.5),
-                width: 1.5,
-              ),
-              // Match navbar layered shadows
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
-                  blurRadius: 30,
-                  offset: const Offset(0, 8),
-                  spreadRadius: 0,
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                  spreadRadius: -2,
-                ),
-                BoxShadow(
-                  color: Colors.blue.withOpacity(0.1),
-                  blurRadius: 40,
-                  offset: const Offset(0, 10),
-                  spreadRadius: 0,
-                ),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: item.onTap,
-                borderRadius: BorderRadius.circular(24),
-                splashColor: Colors.white.withOpacity(0.3),
-                highlightColor: Colors.white.withOpacity(0.15),
-                child: Center(child: _buildTileContent(item, tileSize)),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTileContent(_PentagonItem item, double tileSize) {
-    final words = item.label.split(' ');
-
-    if (words.length > 1) {
-      // Multi-word: text above, icon center, text below
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            words[0],
-            textAlign: TextAlign.center,
-            style: GoogleFonts.baloo2(
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              fontSize: 18,
-              letterSpacing: 0.5,
-              shadows: const [
-                Shadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: tileSize * 0.04),
-          Icon(
-            item.icon,
-            size: 32,
-            color: Colors.white,
-            shadows: const [
-              Shadow(
-                color: Colors.black26,
-                offset: Offset(0, 1),
-                blurRadius: 2,
-              ),
-            ],
-          ),
-          SizedBox(height: tileSize * 0.04),
-          Text(
-            words.sublist(1).join(' '),
-            textAlign: TextAlign.center,
-            style: GoogleFonts.baloo2(
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              fontSize: 18,
-              letterSpacing: 0.5,
-              shadows: const [
-                Shadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                ),
-              ],
-            ),
-          ),
-        ],
-      );
-    } else {
-      // Single word: text on top, icon on bottom
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                item.label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.baloo2(
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  fontSize: 18,
-                  letterSpacing: 0.5,
-                  shadows: const [
-                    Shadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: tileSize * 0.06),
-          Icon(
-            item.icon,
-            size: 32,
-            color: Colors.white,
-            shadows: const [
-              Shadow(
-                color: Colors.black26,
-                offset: Offset(0, 1),
-                blurRadius: 2,
-              ),
-            ],
-          ),
-        ],
-      );
-    }
   }
 }
 

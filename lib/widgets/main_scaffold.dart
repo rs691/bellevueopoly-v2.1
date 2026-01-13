@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
@@ -86,6 +87,24 @@ class _MainScaffoldState extends State<MainScaffold> {
               ),
             ),
             widget.child,
+            
+            // Glass effect for Bottom Navigation Bar
+            if (!isHomeScreen)
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: kBottomNavigationBarHeight + 30, // Approx height of navbar + fab notch area
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      color: Colors.transparent, 
+                    ),
+                  ),
+                ),
+              ),
+
             const ChatbotTutorial(),
           ],
         ),
