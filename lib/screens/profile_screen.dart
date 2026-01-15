@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../providers/user_data_provider.dart';
-import '../providers/firestore_provider.dart';
 import '../widgets/profile_picture_uploader.dart';
 import '../widgets/user_image_gallery.dart';
 import '../widgets/stat_card.dart';
@@ -13,6 +11,7 @@ import '../widgets/logout_confirmation_dialog.dart';
 import '../router/app_router.dart';
 import '../widgets/glassmorphic_card.dart';
 import '../providers/chatbot_settings_provider.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -25,6 +24,24 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   // Local state for toggles (simulation for now)
   bool _pushNotifications = true;
   bool _emailUpdates = false;
+
+  late AutoScrollController _autoScrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _autoScrollController = AutoScrollController(
+      viewportBoundaryGetter: () =>
+          Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+      axis: Axis.vertical,
+    );
+  }
+
+  @override
+  void dispose() {
+    _autoScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,197 +99,201 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             };
           }
 
-          return SingleChildScrollView(
+          // Build the list of widgets to display
+          final List<Widget> children = [
+            // 1. Header (Profile Pic, Name, Email)
+            _buildProfileHeader(context, user),
+            const SizedBox(height: 16),
+
+            // 2. Stats Grid
+            _buildStatsGrid(user),
+            const SizedBox(height: 16),
+
+            // 3. Account Settings Section
+            _buildSectionTitle('ACCOUNT SETTINGS'),
+            GlassmorphicCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildListTile(
+                    icon: Icons.edit,
+                    title: 'Edit Profile',
+                    onTap: () => context.push(AppRoutes.editProfile),
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    icon: Icons.lock_outline,
+                    title: 'Change Password',
+                    onTap: () => context.push(AppRoutes.changePassword),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 4. Notifications Section
+            _buildSectionTitle('NOTIFICATIONS'),
+            GlassmorphicCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildSwitchTile(
+                    icon: Icons.notifications_outlined,
+                    title: 'Push Notifications',
+                    value: _pushNotifications,
+                    onChanged: (val) =>
+                        setState(() => _pushNotifications = val),
+                  ),
+                  _buildDivider(),
+                  _buildSwitchTile(
+                    icon: Icons.email_outlined,
+                    title: 'Email Updates',
+                    value: _emailUpdates,
+                    onChanged: (val) => setState(() => _emailUpdates = val),
+                  ),
+                  _buildDivider(),
+                  _buildSwitchTile(
+                    icon: Icons.smart_toy_outlined,
+                    title: 'Enable Chatbot',
+                    value: ref.watch(chatbotSettingsProvider),
+                    onChanged: (val) =>
+                        ref.read(chatbotSettingsProvider.notifier).toggle(val),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 5. History & Activity
+            _buildSectionTitle('HISTORY & ACTIVITY'),
+            GlassmorphicCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildListTile(
+                    icon: Icons.history,
+                    title: 'Check-in History',
+                    onTap: () => context.push(AppRoutes.checkinHistory),
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    icon: Icons.qr_code_2,
+                    title: 'QR Scan History',
+                    onTap: () {
+                      final userId = auth.currentUser?.uid;
+                      if (userId != null) {
+                        context.push(AppRoutes.qrScanHistory, extra: userId);
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 6. My Images
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionTitle('MY IMAGES'),
+                TextButton.icon(
+                  onPressed: () => context.push(AppRoutes.upload),
+                  icon: const Icon(
+                    Icons.add_a_photo,
+                    size: 16,
+                    color: Colors.blueAccent,
+                  ),
+                  label: const Text(
+                    'Upload',
+                    style: TextStyle(color: Colors.blueAccent),
+                  ),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(60, 30),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+              ],
+            ),
+            UserImageGallery(),
+            const SizedBox(height: 16),
+
+            // 7. Support & Info
+            _buildSectionTitle('SUPPORT & INFO'),
+            GlassmorphicCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildListTile(
+                    icon: Icons.menu_book_outlined,
+                    title: 'How to Play',
+                    onTap: () => context.push(AppRoutes.instructions),
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    icon: Icons.privacy_tip_outlined,
+                    title: 'Privacy Policy',
+                    onTap: () {}, // TODO
+                  ),
+                  _buildDivider(),
+                  _buildListTile(
+                    icon: Icons.gavel_outlined,
+                    title: 'Terms of Service',
+                    onTap: () => context.push(AppRoutes.terms),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 8. Danger Zone
+            GlassmorphicCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _buildListTile(
+                    icon: Icons.delete_forever_outlined,
+                    title: 'Delete Account',
+                    color: Colors.redAccent,
+                    isDestructive: true,
+                    onTap: () => _handleDeleteAccount(context),
+                  ),
+                ],
+              ),
+            ),
+
+            // Admin Link (Conditional)
+            if (user['isAdmin'] == true) ...[
+              const SizedBox(height: 16),
+              GlassmorphicCard(
+                padding: EdgeInsets.zero,
+                child: _buildListTile(
+                  icon: Icons.admin_panel_settings,
+                  title: 'Admin Console',
+                  color: Colors.amber,
+                  onTap: () => context.push(AppRoutes.admin),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 120), // Extra padding for bottom nav bar
+          ];
+
+          return ListView.builder(
+            controller: _autoScrollController,
             padding: const EdgeInsets.symmetric(
               horizontal: 16.0,
               vertical: 24.0,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // 1. Header (Profile Pic, Name, Email)
-                _buildProfileHeader(context, user),
-                const SizedBox(height: 16),
-
-                // 2. Stats Grid
-                _buildStatsGrid(user),
-                const SizedBox(height: 16),
-
-                // 3. Account Settings Section
-                _buildSectionTitle('ACCOUNT SETTINGS'),
-                GlassmorphicCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.edit,
-                        title: 'Edit Profile',
-                        onTap: () => context.push(AppRoutes.editProfile),
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        icon: Icons.lock_outline,
-                        title: 'Change Password',
-                        onTap: () => context.push(AppRoutes.changePassword),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 4. Notifications Section
-                _buildSectionTitle('NOTIFICATIONS'),
-                GlassmorphicCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      _buildSwitchTile(
-                        icon: Icons.notifications_outlined,
-                        title: 'Push Notifications',
-                        value: _pushNotifications,
-                        onChanged: (val) =>
-                            setState(() => _pushNotifications = val),
-                      ),
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        icon: Icons.email_outlined,
-                        title: 'Email Updates',
-                        value: _emailUpdates,
-                        onChanged: (val) => setState(() => _emailUpdates = val),
-                      ),
-                      _buildDivider(),
-                      _buildSwitchTile(
-                        icon: Icons.smart_toy_outlined,
-                        title: 'Enable Chatbot',
-                        value: ref.watch(chatbotSettingsProvider),
-                        onChanged: (val) => ref
-                            .read(chatbotSettingsProvider.notifier)
-                            .toggle(val),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 5. History & Activity
-                _buildSectionTitle('HISTORY & ACTIVITY'),
-                GlassmorphicCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.history,
-                        title: 'Check-in History',
-                        onTap: () => context.push(AppRoutes.checkinHistory),
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        icon: Icons.qr_code_2,
-                        title: 'QR Scan History',
-                        onTap: () {
-                          final userId = auth.currentUser?.uid;
-                          if (userId != null) {
-                            context.push(
-                              AppRoutes.qrScanHistory,
-                              extra: userId,
-                            );
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 6. My Images
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSectionTitle('MY IMAGES'),
-                    TextButton.icon(
-                      onPressed: () => context.push(AppRoutes.upload),
-                      icon: const Icon(
-                        Icons.add_a_photo,
-                        size: 16,
-                        color: Colors.blueAccent,
-                      ),
-                      label: const Text(
-                        'Upload',
-                        style: TextStyle(color: Colors.blueAccent),
-                      ),
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(60, 30),
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                  ],
-                ),
-                // const SizedBox(height: 8), // Removed extra space
-                UserImageGallery(),
-                const SizedBox(height: 16),
-
-                // 7. Support & Info
-                _buildSectionTitle('SUPPORT & INFO'),
-                GlassmorphicCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.menu_book_outlined,
-                        title: 'How to Play',
-                        onTap: () => context.push(AppRoutes.instructions),
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        icon: Icons.privacy_tip_outlined,
-                        title: 'Privacy Policy',
-                        onTap: () {}, // TODO
-                      ),
-                      _buildDivider(),
-                      _buildListTile(
-                        icon: Icons.gavel_outlined,
-                        title: 'Terms of Service',
-                        onTap: () => context.push(AppRoutes.terms),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                // 8. Danger Zone
-                GlassmorphicCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    children: [
-                      _buildListTile(
-                        icon: Icons.delete_forever_outlined,
-                        title: 'Delete Account',
-                        color: Colors.redAccent,
-                        isDestructive: true,
-                        onTap: () => _handleDeleteAccount(context),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Admin Link (Conditional)
-                if (user['isAdmin'] == true) ...[
-                  const SizedBox(height: 16),
-                  GlassmorphicCard(
-                    padding: EdgeInsets.zero,
-                    child: _buildListTile(
-                      icon: Icons.admin_panel_settings,
-                      title: 'Admin Console',
-                      color: Colors.amber,
-                      onTap: () => context.push(AppRoutes.admin),
-                    ),
-                  ),
-                ],
-
-                const SizedBox(height: 32),
-              ],
-            ),
+            itemCount: children.length,
+            itemBuilder: (context, index) {
+              return AutoScrollTag(
+                key: ValueKey(index),
+                controller: _autoScrollController,
+                index: index,
+                child: children[index],
+              );
+            },
           );
         },
       ),
@@ -295,7 +316,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               userName: user['username'] ?? 'User',
               onUploadComplete: () {
                 // The widget handles update, but we can refresh local provider if needed
-                ref.refresh(userDataProvider);
+                ref.invalidate(userDataProvider);
               },
             ),
           ),

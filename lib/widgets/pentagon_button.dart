@@ -86,32 +86,35 @@ class PentagonButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
-              words[0],
-              textAlign: TextAlign.center,
-              style: GoogleFonts.baloo2(
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontSize: 16,
-                letterSpacing: 0.5,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black26,
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  words[0],
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.baloo2(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: 24, // Increased
+                    letterSpacing: 0.5,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.visible,
             ),
           ),
-          SizedBox(height: size * 0.04),
+          SizedBox(height: size * 0.015),
           Icon(
             icon,
-            size: 28,
+            size: size * 0.32, // Increased from 0.28
             color: Colors.white,
             shadows: const [
               Shadow(
@@ -121,26 +124,31 @@ class PentagonButton extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: size * 0.04),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Text(
-              words.sublist(1).join(' '),
-              textAlign: TextAlign.center,
-              style: GoogleFonts.baloo2(
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontSize: 16,
-                letterSpacing: 0.5,
-                shadows: const [
-                  Shadow(
-                    color: Colors.black26,
-                    offset: Offset(0, 1),
-                    blurRadius: 2,
+          SizedBox(height: size * 0.015),
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  words.sublist(1).join(' '),
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.baloo2(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: 24, // Increased
+                    letterSpacing: 0.5,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
                   ),
-                ],
+                  maxLines: 2,
+                ),
               ),
-              maxLines: 2,
             ),
           ),
         ],
@@ -151,41 +159,47 @@ class PentagonButton extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                label,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.baloo2(
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                  fontSize: 18,
-                  letterSpacing: 0.5,
-                  shadows: const [
-                    Shadow(
-                      color: Colors.black26,
-                      offset: Offset(0, 1),
-                      blurRadius: 2,
-                    ),
-                  ],
+          Flexible(
+            flex: 2,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.baloo2(
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    fontSize: 28, // Increased
+                    letterSpacing: 0.5,
+                    shadows: const [
+                      Shadow(
+                        color: Colors.black26,
+                        offset: Offset(0, 1),
+                        blurRadius: 2,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
-          SizedBox(height: size * 0.06),
-          Icon(
-            icon,
-            size: 32,
-            color: Colors.white,
-            shadows: const [
-              Shadow(
-                color: Colors.black26,
-                offset: Offset(0, 1),
-                blurRadius: 2,
-              ),
-            ],
+          SizedBox(height: size * 0.015),
+          Flexible(
+            flex: 3,
+            child: Icon(
+              icon,
+              size: size * 0.38, // Increased from 0.35
+              color: Colors.white,
+              shadows: const [
+                Shadow(
+                  color: Colors.black26,
+                  offset: Offset(0, 1),
+                  blurRadius: 2,
+                ),
+              ],
+            ),
           ),
         ],
       );

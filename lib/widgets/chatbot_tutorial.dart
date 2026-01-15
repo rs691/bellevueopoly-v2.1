@@ -84,24 +84,13 @@ class _ChatbotTutorialState extends ConsumerState<ChatbotTutorial>
   }
 
   Future<void> _checkVisibility() async {
-    final prefs = await SharedPreferences.getInstance();
-    final hasSeen = prefs.getBool('has_seen_chatbot_v3') ?? false;
-
-    if (!hasSeen) {
-      setState(() {
-        _isVisible = true;
-        _chatHistory.add(
-          MessageBubble(text: _tutorialMessages[0], isUser: false),
-        );
-      });
-      _animationController.forward();
-    } else {
-      setState(() {
-        _isVisible = true;
-        _isMinimized = true;
-      });
-      _animationController.forward();
-    }
+    // Chatbot is always available but never auto-opens
+    // User must manually tap the chatbot icon to open it
+    setState(() {
+      _isVisible = true;
+      _isMinimized = true; // Start minimized
+    });
+    _animationController.forward();
   }
 
   Future<void> _markAsSeen() async {

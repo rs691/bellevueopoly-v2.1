@@ -105,13 +105,14 @@ class _StopHubScreenState extends ConsumerState<StopHubScreen> {
                   final height = constraints.maxHeight;
                   final minSide = width < height ? width : height;
 
-                  // UPDATED: Match MobileLandingScreen size (0.26)
-                  final tileSize = (minSide * 0.26).clamp(100.0, 200.0);
+                  // UPDATED: Match MobileLandingScreen sizing for consistency
+                  // Tile size reduced to 0.23 to prevent overlap
+                  final tileSize = (minSide * 0.23).clamp(100.0, 180.0);
 
                   // Adjusted radius to fit within the fixed height container
-                  final radius = (minSide * 0.34);
+                  final radius = (minSide * 0.35);
                   final centerX = width / 2;
-                  final centerY = height / 2;
+                  final centerY = (height / 2) + 10;
 
                   return Center(
                     child: SizedBox(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/game_rules.dart';
+import '../widgets/glassmorphic_card.dart';
 
 /// Full screen for displaying game rules and prizes
 /// Generic and reusable for any game type
@@ -36,83 +38,46 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          // Header with game info
-          SliverAppBar(
-            expandedHeight: 200,
-            pinned: true,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(widget.gameRules.gameName),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.blue.shade600, Colors.purple.shade600],
-                  ),
-                ),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (widget.gameRules.iconPath != null)
-                        Image.asset(
-                          widget.gameRules.iconPath!,
-                          height: 80,
-                          width: 80,
-                        )
-                      else
-                        Icon(
-                          Icons.sports_esports,
-                          size: 80,
-                          color: Colors.white,
-                        ),
-                      const SizedBox(height: 12),
-                      Text(
-                        widget.gameRules.gameDescription,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          widget.gameRules.gameName,
+          style: GoogleFonts.baloo2(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-          // Tab Bar
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _SliverAppBarDelegate(
-              TabBar(
-                controller: _tabController,
-                indicatorColor: Colors.blue,
-                labelColor: Colors.blue,
-                unselectedLabelColor: Colors.grey,
-                tabs: const [
-                  Tab(text: 'Quick Rules', icon: Icon(Icons.speed)),
-                  Tab(text: 'Full Rules', icon: Icon(Icons.book)),
-                  Tab(text: 'Prizes', icon: Icon(Icons.emoji_events)),
-                  Tab(text: 'FAQs', icon: Icon(Icons.help)),
-                ],
-              ),
-            ),
-          ),
-          // Tab Content
-          SliverFillRemaining(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                _buildQuickRulesTab(),
-                _buildFullRulesTab(),
-                _buildPrizesTab(),
-                _buildFAQsTab(),
-              ],
-            ),
-          ),
+        ),
+        leading: widget.onClose != null
+            ? IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: widget.onClose,
+              )
+            : const BackButton(color: Colors.white),
+        bottom: TabBar(
+          controller: _tabController,
+          indicatorColor: Colors.white,
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white60,
+          labelStyle: GoogleFonts.baloo2(fontWeight: FontWeight.bold),
+          tabs: const [
+            Tab(text: 'Quick Rules', icon: Icon(Icons.speed)),
+            Tab(text: 'Full Rules', icon: Icon(Icons.book)),
+            Tab(text: 'Prizes', icon: Icon(Icons.emoji_events)),
+            Tab(text: 'FAQs', icon: Icon(Icons.help)),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildQuickRulesTab(),
+          _buildFullRulesTab(),
+          _buildPrizesTab(),
+          _buildFAQsTab(),
         ],
       ),
     );
@@ -123,22 +88,53 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
       padding: const EdgeInsets.all(16),
       child: ListView(
         children: [
-          const Text(
+          Text(
             'Quick Rules',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.baloo2(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
-          ...widget.gameRules.quickRules.asMap().entries.map((entry) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildRulePoint(entry.key + 1, entry.value),
-            );
-          }),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: () => _tabController.animateTo(1),
-            icon: const Icon(Icons.arrow_forward),
-            label: const Text('View Full Rules'),
+          if (widget.gameRules.quickRules.isEmpty)
+            _buildRulePoint(1, "Check in at participating locations."),
+          if (widget.gameRules.quickRules.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: _buildRulePoint(
+                2,
+                "Scan QR codes to earn points instantly.",
+              ),
+            ),
+          if (widget.gameRules.quickRules.isNotEmpty)
+            ...widget.gameRules.quickRules.asMap().entries.map((entry) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildRulePoint(entry.key + 1, entry.value),
+              );
+            }),
+          const SizedBox(height: 24),
+          Center(
+            child: ElevatedButton.icon(
+              onPressed: () => _tabController.animateTo(1),
+              icon: const Icon(Icons.arrow_forward),
+              label: Text(
+                'View Full Rules',
+                style: GoogleFonts.baloo2(fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.purple,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -146,31 +142,45 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   }
 
   Widget _buildRulePoint(int number, String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Center(
-            child: Text(
-              '$number',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.blue.shade900,
+    return GlassmorphicCard(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+              ),
+              child: Center(
+                child: Text(
+                  '$number',
+                  style: GoogleFonts.baloo2(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ),
-          ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                text,
+                style: GoogleFonts.baloo2(
+                  fontSize: 16,
+                  height: 1.5,
+                  color: Colors.white.withValues(alpha: 0.9),
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(text, style: const TextStyle(fontSize: 16, height: 1.5)),
-        ),
-      ],
+      ),
     );
   }
 
@@ -183,9 +193,13 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
       padding: const EdgeInsets.all(16),
       child: ListView(
         children: [
-          const Text(
+          Text(
             'Full Rules',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.baloo2(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
           ...fullRules.map((section) => _buildRuleSection(section)),
@@ -197,7 +211,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   Widget _buildRuleSection(RuleSection section) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20),
-      child: Card(
+      child: GlassmorphicCard(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -205,15 +219,20 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
             children: [
               Text(
                 section.title,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: GoogleFonts.baloo2(
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 section.description,
-                style: const TextStyle(fontSize: 14, height: 1.6),
+                style: GoogleFonts.baloo2(
+                  fontSize: 14,
+                  height: 1.6,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
               ),
               if (section.bulletPoints != null) ...[
                 const SizedBox(height: 12),
@@ -223,11 +242,21 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('• ', style: TextStyle(fontSize: 14)),
+                        Text(
+                          '• ',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withValues(alpha: 0.8),
+                          ),
+                        ),
                         Expanded(
                           child: Text(
                             point,
-                            style: const TextStyle(fontSize: 14, height: 1.4),
+                            style: GoogleFonts.baloo2(
+                              fontSize: 14,
+                              height: 1.4,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
                           ),
                         ),
                       ],
@@ -240,25 +269,34 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.amber.shade50,
+                    color: Colors.amber.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
                     border: Border(
-                      left: BorderSide(color: Colors.amber.shade400, width: 4),
+                      left: BorderSide(
+                        color: Colors.amber.withValues(alpha: 0.5),
+                        width: 4,
+                      ),
                     ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'Example:',
-                        style: TextStyle(
+                        style: GoogleFonts.baloo2(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
+                          color: Colors.amber.shade100,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         section.example!,
-                        style: const TextStyle(fontSize: 13, height: 1.4),
+                        style: GoogleFonts.baloo2(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: Colors.white.withValues(alpha: 0.9),
+                        ),
                       ),
                     ],
                   ),
@@ -280,9 +318,13 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
       padding: const EdgeInsets.all(16),
       child: ListView(
         children: [
-          const Text(
+          Text(
             'Prizes & Rewards',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.baloo2(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
           ...prizes.map((prize) => _buildPrizeCard(prize)),
@@ -294,8 +336,7 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   Widget _buildPrizeCard(Prize prize) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Card(
-        elevation: 2,
+      child: GlassmorphicCard(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
@@ -308,26 +349,28 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                   children: [
                     Text(
                       prize.title,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: GoogleFonts.baloo2(
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       prize.description,
-                      style: TextStyle(
+                      style: GoogleFonts.baloo2(
                         fontSize: 14,
-                        color: Colors.grey.shade600,
+                        color: Colors.white.withValues(alpha: 0.7),
                       ),
                     ),
                     if (prize.details != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         prize.details!,
-                        style: TextStyle(
+                        style: GoogleFonts.baloo2(
                           fontSize: 12,
-                          color: Colors.grey.shade500,
+                          color: Colors.white.withValues(alpha: 0.5),
+                          fontStyle: FontStyle.italic,
                         ),
                       ),
                     ],
@@ -340,15 +383,18 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: Colors.white.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.2),
+                  ),
                 ),
                 child: Text(
                   '+${prize.points} pts',
-                  style: TextStyle(
+                  style: GoogleFonts.baloo2(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blue.shade900,
+                    color: Colors.greenAccent,
                   ),
                 ),
               ),
@@ -368,9 +414,13 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
       padding: const EdgeInsets.all(16),
       child: ListView(
         children: [
-          const Text(
+          Text(
             'Frequently Asked Questions',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: GoogleFonts.baloo2(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(height: 16),
           ...faqs.map((faq) => _buildFAQItem(faq)),
@@ -382,52 +432,38 @@ class _RulesAndPrizesScreenState extends State<RulesAndPrizesScreen>
   Widget _buildFAQItem(FAQ faq) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        title: Text(
-          faq.question,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Text(
-              faq.answer,
-              style: const TextStyle(fontSize: 14, height: 1.6),
+      child: GlassmorphicCard(
+        padding: EdgeInsets.zero,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            title: Text(
+              faq.question,
+              style: GoogleFonts.baloo2(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.white,
+              ),
             ),
+            iconColor: Colors.white,
+            collapsedIconColor: Colors.white70,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Text(
+                  faq.answer,
+                  style: GoogleFonts.baloo2(
+                    fontSize: 14,
+                    height: 1.6,
+                    color: Colors.white.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
-  }
-}
-
-// Delegate for pinned tab bar
-class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar _tabBar;
-
-  _SliverAppBarDelegate(this._tabBar);
-
-  @override
-  double get minExtent => _tabBar.preferredSize.height;
-
-  @override
-  double get maxExtent => _tabBar.preferredSize.height;
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: _tabBar,
-    );
-  }
-
-  @override
-  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
-    return false;
   }
 }
 

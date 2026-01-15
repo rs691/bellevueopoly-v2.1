@@ -117,6 +117,10 @@ class Business {
     }
     return '';
   }
+
+  bool get hasReward => promotion != null;
+
+  int get points => checkInPoints ?? 0;
 }
 
 class Promotion {

@@ -68,6 +68,7 @@ dependencies:
   google_fonts: ^6.2.1
   animated_bottom_navigation_bar: ^1.4.0
   google_generative_ai: ^0.4.7
+  scroll_to_index: ^3.0.1
 
 dev_dependencies:
   flutter_test:
@@ -121,6 +122,7 @@ flutter:
     - assets/background3.png
     - assets/textFace.png
     - assets/chatbot_icon.png
+    - assets/images/face_title.png
 flutter_native_splash:
   color: "#000000"
   image: assets/splash.png

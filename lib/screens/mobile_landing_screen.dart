@@ -113,25 +113,28 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
           Text(
             'Next Prize Drawing In:',
             style: GoogleFonts.baloo2(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
               color: Colors.white70,
             ),
           ),
-          Text(
-            '${_days}d ${_hours.toString().padLeft(2, '0')}h ${_minutes.toString().padLeft(2, '0')}m ${_seconds.toString().padLeft(2, '0')}s',
-            style: GoogleFonts.baloo2(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              letterSpacing: 1.2,
-              shadows: const [
-                Shadow(
-                  color: Colors.black45,
-                  offset: Offset(0, 2),
-                  blurRadius: 4,
-                ),
-              ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '${_days}d ${_hours.toString().padLeft(2, '0')}h ${_minutes.toString().padLeft(2, '0')}m ${_seconds.toString().padLeft(2, '0')}s',
+              style: GoogleFonts.baloo2(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 1.5,
+                shadows: const [
+                  Shadow(
+                    color: Colors.black45,
+                    offset: Offset(0, 3),
+                    blurRadius: 5,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -143,36 +146,44 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'ChamberOpoly',
-            style: GoogleFonts.baloo2(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-              shadows: const [
-                Shadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                ),
-              ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'ChamberOpoly',
+              style: GoogleFonts.baloo2(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                shadows: const [
+                  Shadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 1),
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
             ),
           ),
-          Text(
-            _randomBusinessName != null
-                ? 'is brought to you by $_randomBusinessName'
-                : 'is brought to you by Chamber of Commerce',
-            style: GoogleFonts.baloo2(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.white.withOpacity(0.9),
-              shadows: const [
-                Shadow(
-                  color: Colors.black26,
-                  offset: Offset(0, 1),
-                  blurRadius: 2,
-                ),
-              ],
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              _randomBusinessName != null
+                  ? 'is brought to you by $_randomBusinessName'
+                  : 'is brought to you by Chamber of Commerce',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.baloo2(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white.withValues(alpha: 0.9),
+                shadows: const [
+                  Shadow(
+                    color: Colors.black26,
+                    offset: Offset(0, 1),
+                    blurRadius: 2,
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -207,7 +218,7 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
               return Text(
                 'Welcome Back',
                 style: GoogleFonts.baloo2(
-                  fontSize: 38,
+                  fontSize: 48,
                   fontWeight: FontWeight.w600,
                 ),
               );
@@ -216,48 +227,61 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
             final String username = (user['username'] is String)
                 ? user['username']
                 : 'Friend';
-            return Text(
-              'Welcome Back, $username!',
-              style: GoogleFonts.baloo2(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
+            return FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                'Welcome Back, $username!',
+                style: GoogleFonts.baloo2(
+                  fontSize: 52,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             );
           },
-          loading: () => Text(
-            'Welcome Back',
-            style: GoogleFonts.baloo2(
-              fontSize: 34,
-              fontWeight: FontWeight.bold,
+          loading: () => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Welcome Back',
+              style: GoogleFonts.baloo2(
+                fontSize: 52,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-          error: (_, __) => Text(
-            'Welcome Back',
-            style: GoogleFonts.baloo2(
-              fontSize: 34,
-              fontWeight: FontWeight.bold,
+          error: (_, __) => FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              'Welcome Back',
+              style: GoogleFonts.baloo2(
+                fontSize: 52,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ),
         centerTitle: true,
         automaticallyImplyLeading: false, // Prevents back button on home
-        toolbarHeight:
-            80, // Increased height to center between top and nav boxes
+        toolbarHeight: 80,
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final minSide = width < height ? width : height;
-          // Tile size standardized to 0.22 to match StopHubScreen
-          final tileSize = (minSide * 0.22).clamp(100.0, 180.0);
-          final radius = (minSide * 0.32);
+
+          // Responsive tile sizing - reverted to previous
+          final tileSize = (minSide * 0.28).clamp(100.0, 160.0);
+          // Radius adjustment - reverted to previous
+          final radius = (minSide * 0.34).clamp(120.0, 200.0);
           final centerX = width / 2;
-          // Account for bottom navbar by centering in available space
-          final navbarHeight = 72 + 32; // navbar height + margins
-          final availableHeight = height - navbarHeight;
-          // Shift center down slightly to avoid overlap with large title text
-          final centerY = (availableHeight / 2) + 20;
+
+          // Calculate available vertical space more accurately
+          final appBarHeight = 80.0;
+          final bottomContentHeight = 160.0; // Compacted footer space
+          final availableHeight = height - appBarHeight - bottomContentHeight;
+
+          // Reverted center Y position
+          final centerY = appBarHeight + (availableHeight / 2);
 
           List<_PentagonItem> items = [
             _PentagonItem(
@@ -312,16 +336,17 @@ class _MobileLandingScreenState extends ConsumerState<MobileLandingScreen> {
                   ],
                   // Countdown Timer and Footer at Bottom
                   Positioned(
-                    bottom: 20,
-                    left: 0,
-                    right: 0,
+                    bottom: 16,
+                    left: 16,
+                    right: 16,
                     child: Center(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           buildCountdownTimer(),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           buildFooter(),
+                          const SizedBox(height: 8),
                         ],
                       ),
                     ),
